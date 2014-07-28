@@ -105,6 +105,6 @@ The output should be a line for each connection on the standart output. An empty
 
 An implementation in C++11 is available.
 
-It can be compiled with ```g++ --std=c++11 -O3 -o csa_cpp csa.cc```
+It can be compiled with ```g++ $CPPFLAGS --std=c++11 -O3 -o csa_cpp csa.cc```
 
 Run the test with ```ruby test.rb ./csa_cpp```
