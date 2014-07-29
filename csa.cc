@@ -1,4 +1,10 @@
 #include <boost/algorithm/string.hpp>
+#include <iostream>
+#include <limits>
+#include <string>
+#include <stdint.h>
+#include <vector>
+
 
 const int MAX_STATIONS  = 100000;
 const uint32_t INF = std::numeric_limits<uint32_t>::max();
@@ -30,7 +36,7 @@ struct Timetable {
         while (!line.empty()) {
             connections.push_back( Connection(line) );
             getline(std::cin, line);
-        }         
+        }
     }
 };
 
