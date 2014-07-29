@@ -108,3 +108,15 @@ An implementation in C++11 is available.
 It can be compiled with ```g++ $CPPFLAGS --std=c++11 -O3 -o csa_cpp csa.cc```
 
 Run the test with ```ruby test.rb ./csa_cpp```
+
+
+## Challenge
+
+Try to write:
+
+* The first implementation passing the tests
+* Smallest source code (measured in bytes). Any library installable without an external repository on Debian, Ubuntu, Archlinux is accepted
+* Smallest executable (same rule considering dependencies)
+* The most unreable
+* The least alphanumerical characters
+* The most creative implementation of the algorithm
