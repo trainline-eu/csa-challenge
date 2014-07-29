@@ -84,7 +84,9 @@ struct CSA {
         earliest_arrival.assign(MAX_STATIONS, INF);
         earliest_arrival[departure_station] = departure_time;
 
-        main_loop();
+        if (departure_station <= MAX_STATIONS && arrival_station <= MAX_STATIONS) {
+            main_loop();
+        }
         print_result(arrival_station);
     }
 
