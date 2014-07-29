@@ -63,7 +63,7 @@ We just need to go from `d` and look up all the in_connections until we reach `o
 ### Immediate optimizations
 
 There is no need to look all the connections. We start with the first having `departure_timestamp > t0` and we stop
-as soon as `c.departure_timestamp > arrival_timestamp.
+as soon as `c.departure_timestamp > arrival_timestamp`.
 
 ## Limitations
 
@@ -101,7 +101,7 @@ The output should be a line for each connection on the standart output. An empty
 
 ```
 
-## Refernce implementation
+## Reference implementation
 
 An implementation in C++11 is available.
 
