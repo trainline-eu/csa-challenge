@@ -18,10 +18,10 @@ struct Connection {
         std::vector<std::string> tokens;
         boost::split(tokens, line, boost::is_any_of(" "));
 
-        departure_station = std::stoi(tokens[0]);
-        arrival_station = std::stoi(tokens[1]);
-        departure_timestamp = std::stoi(tokens[2]);
-        arrival_timestamp = std::stoi(tokens[3]);
+        departure_station = std::stoi(tokens.at(0));
+        arrival_station = std::stoi(tokens.at(1));
+        departure_timestamp = std::stoi(tokens.at(2));
+        arrival_timestamp = std::stoi(tokens.at(3));
     }
 };
 
