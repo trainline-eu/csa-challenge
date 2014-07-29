@@ -14,7 +14,8 @@ struct Connection {
     uint32_t departure_timestamp, arrival_timestamp;
 
     // Connection constructor
-    Connection(const std::string &line) {
+    Connection(std::string line) {
+        boost::trim(line);
         std::vector<std::string> tokens;
         boost::split(tokens, line, boost::is_any_of(" "));
 
