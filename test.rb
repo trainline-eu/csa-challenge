@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
 require 'test/unit'
-require 'open3'
 
 if ARGV.size != 1
   puts "Usage: ruby #{$0} routing_executable"
@@ -20,15 +19,14 @@ class TestCSA < Test::Unit::TestCase
 EOF
 
   def setup
-    @stdin, @stdout = Open3.popen2 ARGV[0]
+    @io = IO.popen ARGV[0], "r+"
 
-    @stdin.write TIMETABLE
+    @io.write TIMETABLE
   end
 
   def teardown
-    @stdin.write "\n"
-    @stdin.close
-    @stdout.close
+    @io.write "\n"
+    @io.close
   end
 
   def read_answer io
@@ -52,8 +50,8 @@ EOF
   end
 
   def test_simple_route
-    @stdin.write "1 2 3000\n"
-    response = read_answer @stdout
+    @io.puts "1 2 3000"
+    response = read_answer @io
     assert_equal 1, response.size
     assert_equal 1, response[0][:departure_station]
     assert_equal 2, response[0][:arrival_station]
@@ -62,8 +60,8 @@ EOF
   end
 
   def test_route_with_connection
-    @stdin.write "1 3 3000\n"
-    response = read_answer @stdout
+    @io.puts "1 3 3000"
+    response = read_answer @io
     assert_equal 2, response.size
     assert_equal 1, response[0][:departure_station]
     assert_equal 2, response[0][:arrival_station]
@@ -74,8 +72,8 @@ EOF
   end
 
   def test_later_departure
-    @stdin.write "1 3 4000\n"
-    response = read_answer @stdout
+    @io.puts "1 3 4000"
+    response = read_answer @io
     assert_equal 1, response.size
     assert_equal 1, response[0][:departure_station]
     assert_equal 3, response[0][:arrival_station]
@@ -83,8 +81,8 @@ EOF
   end
 
   def test_invalid_station
-    @stdin.write "5 3 4000\n"
-    response = read_answer @stdout
+    @io.puts "5 3 4000"
+    response = read_answer @io
     assert_equal 0, response.size
   end
 
