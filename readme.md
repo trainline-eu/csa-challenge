@@ -109,6 +109,15 @@ It can be compiled with ```g++ $CPPFLAGS --std=c++11 -O3 -o csa_cpp csa.cc```
 
 Run the test with ```ruby test.rb ./csa_cpp```
 
+## Haskell implementation
+
+Debian packages:
+- haskell
+- bin-utils
+
+Build: ```ghc -o csa_hs -Wall -O3 csa.hs && strip csa_hs```
+
+Run the test with ```ruby test.rb ./csa_hs```
 
 ## Challenge
 
