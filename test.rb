@@ -7,6 +7,8 @@ if ARGV.size != 1
   exit(-1)
 end
 
+EXECUTABLE = ARGV[0]
+
 class TestCSA < Test::Unit::TestCase
 
   TIMETABLE =<<EOF
@@ -19,7 +21,7 @@ class TestCSA < Test::Unit::TestCase
 EOF
 
   def setup
-    @io = IO.popen ARGV[0], "r+"
+    @io = IO.popen EXECUTABLE, "r+"
 
     @io.write TIMETABLE
   end
