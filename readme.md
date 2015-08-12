@@ -129,3 +129,10 @@ Try to write:
 * The most unreable
 * The least alphanumerical characters
 * The most creative implementation of the algorithm
+
+## Benchmarking
+
+We included 48 hours of train connections in Europe starting the January 1st 1970.
+The data is not real, but pretty close.
+
+You can run the benchmark with ```ruby bench.rb ./csa_cpp```
