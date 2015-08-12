@@ -1,10 +1,8 @@
 #include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <limits>
-#include <string>
 #include <stdint.h>
 #include <vector>
-
 
 const int MAX_STATIONS  = 100000;
 const uint32_t INF = std::numeric_limits<uint32_t>::max();
@@ -19,10 +17,10 @@ struct Connection {
         std::vector<std::string> tokens;
         boost::split(tokens, line, boost::is_any_of(" "));
 
-        departure_station = std::stoi(tokens.at(0));
-        arrival_station = std::stoi(tokens.at(1));
-        departure_timestamp = std::stoi(tokens.at(2));
-        arrival_timestamp = std::stoi(tokens.at(3));
+        departure_station = std::stoi(tokens[0]);
+        arrival_station = std::stoi(tokens[1]);
+        departure_timestamp = std::stoi(tokens[2]);
+        arrival_timestamp = std::stoi(tokens[3]);
     }
 };
 
@@ -46,13 +44,21 @@ struct CSA {
     std::vector<uint32_t> in_connection;
     std::vector<uint32_t> earliest_arrival;
 
-    void main_loop() {
+    void main_loop(uint32_t arrival_station) {
+        uint32_t earliest = INF;
         for (size_t i = 0; i < timetable.connections.size(); ++i) {
             Connection connection = timetable.connections[i];
+
             if (connection.departure_timestamp >= earliest_arrival[connection.departure_station] &&
                     connection.arrival_timestamp < earliest_arrival[connection.arrival_station]) {
                 earliest_arrival[connection.arrival_station] = connection.arrival_timestamp;
                 in_connection[connection.arrival_station] = i;
+
+                if(connection.arrival_station == arrival_station) {
+                    earliest = std::min(earliest, connection.arrival_timestamp);
+                }
+            } else if(connection.arrival_timestamp > earliest) {
+              return;
             }
         }
     }
@@ -62,7 +68,7 @@ struct CSA {
             std::cout << "NO_SOLUTION" << std::endl;
         } else {
             std::vector<Connection> route;
-            // We have to rebuild the route from the arrival station 
+            // We have to rebuild the route from the arrival station
             uint32_t last_connection_index = in_connection[arrival_station];
             while (last_connection_index != INF) {
                 Connection connection = timetable.connections[last_connection_index];
@@ -86,11 +92,10 @@ struct CSA {
         earliest_arrival[departure_station] = departure_time;
 
         if (departure_station <= MAX_STATIONS && arrival_station <= MAX_STATIONS) {
-            main_loop();
+            main_loop(arrival_station);
         }
         print_result(arrival_station);
     }
-
 };
 
 int main(int, char**) {
