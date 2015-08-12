@@ -119,6 +119,12 @@ Build: ```ghc -o csa_hs -Wall -O3 csa.hs && strip csa_hs```
 
 Run the test with ```ruby test.rb ./csa_hs```
 
+## Java implementation
+
+Build: ```javac CSA.java```
+
+Run the test with ```ruby test.rb "java CSA```
+
 ## Challenge
 
 Try to write:
