@@ -88,4 +88,14 @@ EOF
     assert_equal 0, response.size
   end
 
+  def test_multiple_queries
+    @io.puts "1 3 4000"
+    response1 = read_answer @io
+    @io.puts "1 3 4000"
+    response2 = read_answer @io
+
+    assert_equal 1, response1.size
+    assert_equal 1, response2.size
+  end
+
 end
