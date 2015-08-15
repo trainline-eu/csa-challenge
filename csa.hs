@@ -1,6 +1,8 @@
 import System.IO
 import qualified Data.Map as M
 import Data.Maybe (fromMaybe)
+import Control.Applicative
+import Control.Monad (unless)
 
 readInts :: String -> [Integer]
 readInts = map read . words
@@ -87,17 +89,36 @@ findPathImpl inConnections objective accumulator =
       let Connection departure _ _ _ = connection
       in findPathImpl inConnections departure (connection : accumulator)
 
+readConnections :: IO [String]
+readConnections = do
+  line <- getLine
+  if null line
+    then return []
+    else (line :) <$> readConnections
+
+printPath :: Path -> IO ()
+printPath [] = putStrLn "NO_SOLUTION"
+printPath path = mapM_ (putStrLn . printConnection) path
+
+mainLoop :: [Connection] -> IO ()
+mainLoop connections = do
+  done <- isEOF
+  unless done $ do
+    line <- getLine
+    unless (null line) $ do
+      let query = parseQuery line
+      let timetable = buildTimetable query connections
+
+      printPath $ findPath timetable query
+      putStrLn ""
+      hFlush stdout
+
+      mainLoop connections
+
 -- main
 main :: IO ()
 main = do
-  input <- fmap lines getContents
+  firstLines <- readConnections
+  let connections = fmap parseConnection firstLines
 
-  let connections = map parseConnection . takeWhile (not.null) $ input
-      query       = parseQuery . head . dropWhile null . dropWhile (not.null) $ input
-      timetable   = buildTimetable query connections
-
-  case findPath timetable query of
-    []   -> putStrLn "NO_SOLUTION"
-    path -> mapM_ (putStrLn . printConnection) path
-
-  putStrLn ""
+  mainLoop connections
