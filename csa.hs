@@ -1,15 +1,13 @@
 import System.IO
 import qualified Data.Map as M
-import Data.Maybe (fromMaybe)
+import Data.Maybe (fromMaybe, fromJust)
 import Control.Applicative
 import Control.Monad (unless)
 import Numeric
+import qualified Data.ByteString.Char8 as BS (ByteString, getLine, readInt, words, null)
 
-fastRead :: String -> Int
-fastRead s = case readDec s of [(n, "")] -> n
-
-readInts :: String -> [Int]
-readInts = map fastRead . words
+readInts :: BS.ByteString -> [Int]
+readInts = map (fst . fromJust . BS.readInt) . BS.words
 
 type Station = Int
 
@@ -31,7 +29,7 @@ newConnection [departure, arrival, departureTime, arrivalTime] =
         Connection departure arrival departureTime arrivalTime
 newConnection _ = error "Illegal Connection values"
 
-parseConnection :: String -> Connection
+parseConnection :: BS.ByteString -> Connection
 parseConnection = newConnection.readInts
 
 printConnection :: Connection -> String
@@ -46,7 +44,7 @@ newQuery :: [Int] -> Query
 newQuery [departure, arrival, departureTime] = Query departure arrival departureTime
 newQuery _ = error "Illegal Query values"
 
-parseQuery :: String -> Query
+parseQuery :: BS.ByteString -> Query
 parseQuery = newQuery.readInts
 
 -- Timetable
@@ -97,10 +95,10 @@ findPathImpl inConnections objective accumulator =
       let Connection departure _ _ _ = connection
       in findPathImpl inConnections departure (connection : accumulator)
 
-readConnections :: IO [String]
+readConnections :: IO [BS.ByteString]
 readConnections = do
-  line <- getLine
-  if null line
+  line <- BS.getLine
+  if BS.null line
     then return []
     else (line :) <$> readConnections
 
@@ -112,8 +110,8 @@ mainLoop :: [Connection] -> IO ()
 mainLoop connections = do
   done <- isEOF
   unless done $ do
-    line <- getLine
-    unless (null line) $ do
+    line <- BS.getLine
+    unless (BS.null line) $ do
       let query = parseQuery line
       let timetable = buildTimetable query connections
 
