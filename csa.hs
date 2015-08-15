@@ -57,11 +57,11 @@ emptyTimetable (Query departure _ departureTime) =
   Timetable (M.insert departure departureTime M.empty) M.empty
 
 buildTimetable :: Query -> [Connection] -> Timetable
-buildTimetable = augmentTimetable.emptyTimetable
+buildTimetable = (augmentTimetable infinity) .emptyTimetable
 
-augmentTimetable :: Timetable -> [Connection] -> Timetable
-augmentTimetable timetable [] = timetable
-augmentTimetable timetable@(Timetable arrivalTimes inConnections) (connection : connections) =
+augmentTimetable :: Timestamp -> Timetable -> [Connection] -> Timetable
+augmentTimetable _ timetable [] = timetable
+augmentTimetable earliestArrival timetable@(Timetable arrivalTimes inConnections) (connection : connections) =
   let Connection departure arrival departureTime arrivalTime = connection
       bestDepartureTime = timestamp $ M.lookup departure arrivalTimes
       bestArrivalTime   = timestamp $ M.lookup arrival   arrivalTimes
@@ -71,9 +71,13 @@ augmentTimetable timetable@(Timetable arrivalTimes inConnections) (connection : 
       let newArrivalTimes  = M.insert arrival arrivalTime arrivalTimes
           newInConnections = M.insert arrival connection  inConnections
           newTimetable     = Timetable newArrivalTimes newInConnections
-      in augmentTimetable newTimetable connections
+      in augmentTimetable (min arrivalTime earliestArrival) newTimetable connections
     else
-      augmentTimetable timetable connections
+      if arrivalTime > earliestArrival
+      then
+        timetable
+      else
+        augmentTimetable earliestArrival timetable connections
 
 -- CSA implementation
 findPath :: Timetable -> Query -> Path
