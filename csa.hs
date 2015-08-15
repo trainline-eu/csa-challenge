@@ -3,16 +3,20 @@ import qualified Data.Map as M
 import Data.Maybe (fromMaybe)
 import Control.Applicative
 import Control.Monad (unless)
+import Numeric
 
-readInts :: String -> [Integer]
-readInts = map read . words
+fastRead :: String -> Int
+fastRead s = case readDec s of [(n, "")] -> n
 
-type Station = Integer
+readInts :: String -> [Int]
+readInts = map fastRead . words
 
-type Timestamp = Integer
+type Station = Int
+
+type Timestamp = Int
 
 infinity :: Timestamp
-infinity = 10000000000000000000000000 -- Infinite timestamp should be that high
+infinity = maxBound
 
 -- Evaluate Maybe Timestamp with infinity as fallback
 timestamp :: Maybe Timestamp -> Timestamp
@@ -22,7 +26,7 @@ timestamp = fromMaybe infinity
 -- departureStation arrivalStation departureTime arrivalTime
 data Connection = Connection Station Station Timestamp Timestamp
 
-newConnection :: [Integer] -> Connection
+newConnection :: [Int] -> Connection
 newConnection [departure, arrival, departureTime, arrivalTime] =
         Connection departure arrival departureTime arrivalTime
 newConnection _ = error "Illegal Connection values"
@@ -38,7 +42,7 @@ printConnection (Connection departure arrival departureTime arrivalTime) =
 -- departureStation arrivalStation departureTime
 data Query = Query Station Station Timestamp
 
-newQuery :: [Integer] -> Query
+newQuery :: [Int] -> Query
 newQuery [departure, arrival, departureTime] = Query departure arrival departureTime
 newQuery _ = error "Illegal Query values"
 
