@@ -46,4 +46,8 @@ puts "… done\n\n"
 puts "Total time: #{duration} seconds"
 puts "Average time per search: #{duration * 1000 / count} ms"
 
-io.close
+begin
+    io.close
+rescue Errno::EPIPE
+    # Prevent broken pipe errors
+end
