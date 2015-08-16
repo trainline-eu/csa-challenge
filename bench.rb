@@ -7,7 +7,7 @@ if ARGV.size != 1
   exit(-1)
 end
 
-def consume_answer io
+def consume_answer(io)
   line = io.gets.strip
   if line != "NO_SOLUTION"
     while !line.empty?
@@ -46,4 +46,8 @@ puts "… done\n\n"
 puts "Total time: #{duration} seconds"
 puts "Average time per search: #{duration * 1000 / count} ms"
 
-io.close
+begin
+    io.close
+rescue Errno::EPIPE
+    # Prevent broken pipe errors
+end
