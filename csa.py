@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 import sys
+from array import array
 
 MAX_STATIONS = 100000
+MAX_INT = 2**32 - 1
 
 
 class Connection:
@@ -30,11 +32,11 @@ class Timetable:
 class CSA:
     def __init__(self):
         self.timetable = Timetable()
-        self.in_connection = []
-        self.earliest_arrival = []
+        self.in_connection = array('I')
+        self.earliest_arrival = array('I')
 
     def main_loop(self, arrival_station):
-        earliest = float("inf")
+        earliest = MAX_INT
 
         for i, c in enumerate(self.timetable.connections):
             if c.departure_timestamp >= self.earliest_arrival[c.departure_station] \
@@ -48,7 +50,7 @@ class CSA:
                 return
 
     def print_result(self, arrival_station):
-        if self.in_connection[arrival_station] == float("inf"):
+        if self.in_connection[arrival_station] == MAX_INT:
             print("NO_SOLUTION")
         else:
             route = []
@@ -56,7 +58,7 @@ class CSA:
             # We have to rebuild the route from the arrival station
             last_connection_index = self.in_connection[arrival_station]
 
-            while last_connection_index != float("inf"):
+            while last_connection_index != MAX_INT:
                 connection = self.timetable.connections[last_connection_index]
                 route.append(connection)
                 last_connection_index = self.in_connection[connection.departure_station]
@@ -77,12 +79,8 @@ class CSA:
             pass
 
     def compute(self, departure_station, arrival_station, departure_time):
-        self.in_connection = {}
-        self.earliest_arrival = {}
-
-        for i in range(MAX_STATIONS):
-            self.in_connection[i] = float("inf")
-            self.earliest_arrival[i] = float("inf")
+        self.in_connection = array('I', [MAX_INT for _ in range(MAX_STATIONS)])
+        self.earliest_arrival = array('I', [MAX_INT for _ in range(MAX_STATIONS)])
 
         self.earliest_arrival[departure_station] = departure_time
 
