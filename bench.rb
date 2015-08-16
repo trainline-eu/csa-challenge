@@ -7,7 +7,7 @@ if ARGV.size != 1
   exit(-1)
 end
 
-def consume_answer io
+def consume_answer(io)
   line = io.gets.strip
   if line != "NO_SOLUTION"
     while !line.empty?

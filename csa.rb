@@ -39,7 +39,7 @@ class CSA
     @timetable = Timetable.new
   end
 
-  def main_loop arrival_station
+  def main_loop(arrival_station)
     earliest = INF
     timetable.connections.each_with_index do |c, i|
       if c.departure_timestamp >= earliest_arrival[c.departure_station] && c.arrival_timestamp < earliest_arrival[c.arrival_station]
@@ -88,7 +88,7 @@ class CSA
     earliest_arrival[departure_station] = departure_time;
 
     if departure_station <= MAX_STATIONS && arrival_station <= MAX_STATIONS
-      main_loop arrival_station
+      main_loop(arrival_station)
     end
 
     print_result(arrival_station)

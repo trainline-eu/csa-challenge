@@ -31,7 +31,7 @@ EOF
     @io.close
   end
 
-  def read_answer io
+  def read_answer(io)
     result = []
     line = io.gets.strip
     if line != "NO_SOLUTION"
