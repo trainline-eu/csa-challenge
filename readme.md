@@ -123,7 +123,11 @@ Run the test with ```ruby test.rb ./csa_hs```
 
 Build: ```javac CSA.java```
 
-Run the test with ```ruby test.rb "java CSA```
+Run the test with ```ruby test.rb "java CSA"```
+
+## Lua implementation
+
+Run the test with ```ruby test.rb "luajit csa.lua"```
 
 ## Challenge
 
