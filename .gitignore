@@ -4,3 +4,5 @@ csa_hs
 csa_cpp
 csa_go
 *.class
+target/
+Cargo.lock

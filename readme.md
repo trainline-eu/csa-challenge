@@ -129,6 +129,12 @@ Run the test with ```ruby test.rb "java CSA"```
 
 Run the test with ```ruby test.rb "luajit csa.lua"```
 
+## Rust implementation
+
+Build: ```cargo build --release```
+
+Run the test with ```ruby test.rb ./target/release/csa_rs```
+
 ## Challenge
 
 Try to write:
