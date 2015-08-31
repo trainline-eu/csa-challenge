@@ -1,0 +1,9 @@
+[package]
+name = "csa_rs"
+version = "0.1.0"
+authors = ["Stanislas Signoud <signez@stanisoft.net>"]
+
+[[bin]]
+name = "csa_rs"
+path = "csa.rs"
+
