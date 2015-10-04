@@ -6,3 +6,6 @@ csa_cpp: csa.cc
 
 csa_go: csa.go
 	go build -o csa_go csa.go
+
+csa_c: csa.c
+	clang -Ofast -o csa_c csa.c
