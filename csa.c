@@ -4,128 +4,145 @@
 #include <limits.h>
 #include <sys/param.h>
 
-typedef union {
-    struct {
-        int from;
-        int to;
-        int start;
-        int end;
-    };
-    int args[4];
-}connection;
+#if DEBUG
+  #define eprintf(format, args...) do{ fprintf(stderr, format , ## args); fflush(stderr); }while(0);
+#else
+  #define eprintf(format, args...)
+#endif
 
-struct {
-    int capacity;
-    int count;
-    connection * c;
-} timetable;
+// Generic Arrays in C \o/
 
-void print_connection(connection c) {
-    printf("%i %i %i %i\n",c.from, c.to, c.start, c.end);
+#define array_of(type) type##_array
+#define define_array_of(type) typedef struct { size_t capacity; size_t count; type * values; } array_of(type);
+#define array_at(array,i) array->values[i]
+#define array_new_entry(array) ({\
+  if ((array)->count==(array)->capacity) {\
+    const size_t BLOCK = 4*1024*1024;\
+    (array)->capacity+=BLOCK;\
+    (array)->values = realloc((array)->values, (array)->capacity*sizeof((array)->values[0]));\
+    eprintf("realloced to %zu\n",(array)->capacity);\
+  }\
+  (array)->count++;\
+  &((array)->values[(array)->count-1]);\
+})
+
+// Generic raw structure access
+
+void _raw_parse(char* line, unsigned int * raw, size_t capacity) {
+    char *token; size_t i=0;
+    while ((token = strsep(&line, " ")) && i<capacity) {
+        raw[i++] = atoi(token);
+    }
+}
+void _raw_printf(unsigned int * raw, size_t size) {
+    for (size_t i=0; i<size; i++) { printf("%i ", raw[i]); } printf("\n");
 }
 
-typedef union {
-    struct {
-        int from;
-        int to;
-        int start;
-    };
-    int args[3];
-}request;
+#define raw_parse(line,struct_pointer) _raw_parse(line,(unsigned int *)struct_pointer,sizeof(*struct_pointer)/sizeof(unsigned int))
+#define raw_printf(struct_pointer) _raw_printf((unsigned int *)struct_pointer,sizeof(*struct_pointer)/sizeof(unsigned int))
 
-const int MAX_STATIONS = 100000;
-const int INF = INT_MAX;
 
-int in_connection[MAX_STATIONS];
-int earliest_arrival[MAX_STATIONS];
+// Data structure
 
-void compute_route(request r)
+typedef unsigned int station;
+typedef unsigned int timestamp;
+
+typedef struct {
+    station from;
+    station to;
+    timestamp start;
+    timestamp end;
+} connection;
+define_array_of(connection);
+typedef size_t connection_index;
+
+typedef struct {
+    station from;
+    station to;
+    timestamp start;
+} request;
+
+// CSA
+
+void compute_route(array_of(connection) *timetable, request *rq)
 {
+    const size_t MAX_STATIONS = 100000;
+    const timestamp INFINITE = INT_MAX;
+    const connection_index INVALID_CONNECTION = INT_MAX;
+    
+    static connection_index in_connection[MAX_STATIONS];
+    static timestamp earliest_arrival[MAX_STATIONS];
+
     // setup
-    for (int i=0; i<MAX_STATIONS; ++i) {
-        earliest_arrival[i] = in_connection[i] = INF;
+    for (station s=0; s<MAX_STATIONS; ++s) {
+        in_connection[s] = INVALID_CONNECTION;
+        earliest_arrival[s] = INFINITE;
     }
-    earliest_arrival[r.from] = r.start;
+    earliest_arrival[rq->from] = rq->start;
     
     // main loop
-    int earliest = INF;
-    for (int i = 0; i < timetable.count; ++i) {
-        connection current_c = timetable.c[i];
-        if (current_c.start >= earliest_arrival[current_c.from] && current_c.end < earliest_arrival[current_c.to]) {
-            earliest_arrival[current_c.to] = current_c.end;
-            in_connection[current_c.to] = i;
+    timestamp earliest = INFINITE;
+    for (connection_index i = 0; i < timetable->count; ++i) {
+        connection * c = &array_at(timetable,i);
+        if (c->start >= earliest_arrival[c->from] && c->end < earliest_arrival[c->to]) {
+            earliest_arrival[c->to] = c->end;
+            in_connection[c->to] = i;
             
-            if(current_c.to == r.to) {
-                earliest = MIN(earliest, current_c.end);
+            if(c->to == rq->to) {
+                earliest = MIN(earliest, c->end);
             }
-        } else if(current_c.end > earliest) {
+        } else if(c->end > earliest) {
             break;
         }
     }
-    
-    //
-    if(in_connection[r.to] == INF) {
+
+    // print result
+    if(in_connection[rq->to] == INFINITE) {
         printf("NO_SOLUTION\n");
     } else {
-        connection route[300];
-        // We have to rebuild the route from the arrival station
-        int last_connection_index = in_connection[r.to];
+        connection_index route[300];
+        connection_index last_connection = in_connection[rq->to];
         int i = 0;
-        while (last_connection_index != INF) {
-            connection c = timetable.c[last_connection_index];
-            route[i++] = c;
-            last_connection_index = in_connection[c.from];
+        while (last_connection != INFINITE) {
+            route[i++] = last_connection;
+            last_connection = in_connection[array_at(timetable,last_connection).from];
         }
         
-        // And now print it out in the right direction
         for (i--; i>=0; i--) {
-            print_connection(route[i]);
+            raw_printf(&array_at(timetable, route[i]));
         }
     }
     printf("\n");
     fflush(stdout);
 }
 
+// Main I/O
+
 int main()
 {
-    const int BLOCK = 1024;
-    timetable.capacity = BLOCK;
-    timetable.c = malloc(timetable.capacity*sizeof(connection));
-    timetable.count = 0;
+    array_of(connection) timetable = {0,0,NULL};
+
     enum { LOAD, COMPUTE } mode = LOAD;
-    char * buf = NULL;
-    size_t linecap = 0;
-    ssize_t linelen;
-    while ((linelen = getline(&buf,&linecap,stdin))>0) {
-        if(strcmp(buf,"\n")==0) {
+    char * line = NULL; size_t line_cap = 0; ssize_t linelen;
+    while ((linelen = getline(&line,&line_cap,stdin))>0) {
+        if(strcmp(line,"\n")==0) {
+            eprintf( "%zu connections",t.count);
             mode = COMPUTE;
         } else {
             switch (mode) {
                 case LOAD: {
-                    char *line=buf; char *token; int i=0;
-                    connection *c = &timetable.c[timetable.count++];
-                    while ((token = strsep(&line, " ")) && i<4) {
-                        c->args[i++] = atoi(token);
-                    }
-                    if (timetable.count==timetable.capacity) {
-                        timetable.capacity+=BLOCK;
-                        timetable.c = realloc(timetable.c, timetable.capacity*sizeof(connection));
-//                        fprintf(stderr,"realloced to %d\n",timetable.capacity);
-                    }
+                    raw_parse(line, array_new_entry(&timetable));
                     break;
                 }
-                case COMPUTE:{
-                    char *line=buf; char *token; int i=0;
-                    request r;
-                    while ((token = strsep(&line, " ")) && i<4) {
-                        r.args[i++] = atoi(token);
-                    }
-                    compute_route(r);
+                case COMPUTE: {
+                    request rq;
+                    raw_parse(line, &rq);
+                    compute_route(&timetable,&rq);
                     break;
                 }
             }
         }
     }
-    free(buf);
+    free(line);
     return 0;
 }
