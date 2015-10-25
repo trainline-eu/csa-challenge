@@ -97,13 +97,13 @@ void compute_route(array_of(connection) *timetable, request *rq)
     }
 
     // print result
-    if(in_connection[rq->to] == INFINITE) {
+    if(in_connection[rq->to] == INVALID_CONNECTION) {
         printf("NO_SOLUTION\n");
     } else {
         connection_index route[300];
         connection_index last_connection = in_connection[rq->to];
         int i = 0;
-        while (last_connection != INFINITE) {
+        while (last_connection != INVALID_CONNECTION) {
             route[i++] = last_connection;
             last_connection = in_connection[array_at(timetable,last_connection).from];
         }
