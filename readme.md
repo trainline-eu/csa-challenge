@@ -1,6 +1,6 @@
 # CSA Challenge
 
-At Capitaine Train, we need to compute train routes to find the best combination
+At Captain Train, we need to compute train routes to find the best combination
 with different train operators.
 
 Our core routing engine is written in C++ and is based on the
