@@ -13,7 +13,7 @@ struct Connection {
 
 impl Connection {
     fn parse(line: &str) -> Connection {
-        let mut splitted = line.split(" ").map(|bite| { bite.parse::<u32>().unwrap() });
+        let mut splitted = line.split(" ").map(|crumb| { crumb.parse::<u32>().unwrap() });
 
         Connection {
             departure_station: splitted.next().unwrap() as usize,
@@ -112,7 +112,7 @@ fn main() {
             break;
         } else {
             let params = input_line.split(" ")
-                .map(|bite| { bite.parse().ok().expect(&format!("failed to read {} as integer", bite)) })
+                .map(|crumb| { crumb.parse().ok().expect(&format!("failed to read {} as integer", crumb)) })
                 .collect::<Vec<u32>>();
 
             let departure_station = params[0] as usize;
