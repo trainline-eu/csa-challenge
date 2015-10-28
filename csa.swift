@@ -120,6 +120,6 @@ do {
         printRoute(route)
     }
 } catch let error as Error {
-    fputs("\(error.message)\n", stdout)
+    fputs("\(error.message)\n", stderr)
     exit(1)
 }
