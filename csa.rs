@@ -25,21 +25,19 @@ impl Connection {
 }
 
 fn csa_main_loop(timetable: &[Connection], arrival_station: usize, earliest_arrival: &mut [u32], in_connection: &mut [usize]) {
-    let mut earliest = std::u32::MAX;
-
-    for (i, connection) in timetable.iter().enumerate() {
+    timetable.iter().enumerate().fold(std::u32::MAX, |earliest, (i, connection)| {
         if connection.departure_timestamp >= earliest_arrival[connection.departure_station] &&
-                connection.arrival_timestamp < earliest_arrival[connection.arrival_station] {
+           connection.arrival_timestamp < earliest_arrival[connection.arrival_station] {
             earliest_arrival[connection.arrival_station] = connection.arrival_timestamp;
             in_connection[connection.arrival_station] = i;
-
-            if connection.arrival_station == arrival_station && connection.arrival_timestamp < earliest {
-                earliest = connection.arrival_timestamp;
-            }
-        } else if connection.arrival_timestamp > earliest {
-            break;
         }
-    }
+
+        if connection.arrival_station == arrival_station && connection.arrival_timestamp < earliest {
+            connection.arrival_timestamp
+        } else {
+            earliest
+        }
+    });
 }
 
 fn csa_print_result(timetable: &Vec<Connection>, in_connection: &[usize], arrival_station: usize) {
