@@ -1,0 +1,1 @@
+char*x="1 2 3600 7200\n2 3 3321 9000\n1 3 *** 10000\n",*y,z[99],a,b,c,*gets(*);main(){while(b=c=2,y=gets(z)){while(a=*y++)b^=a,c+=a==32;a=51-x[b%5+18],c-4||dprintf(1,"%.*s\n",a%3*14,x+a/4*7);}}

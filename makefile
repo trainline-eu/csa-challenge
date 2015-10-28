@@ -12,3 +12,6 @@ csa_c: csa.c
 
 csa_pascal: csa.pas
 	fpc csa.pas
+
+csa_volkswagen: csa_volkswagen.c
+	clang -w -Ofast -o csa_volkswagen csa_volkswagen.c
