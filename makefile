@@ -9,3 +9,6 @@ csa_go: csa.go
 
 csa_c: csa.c
 	clang -Ofast -o csa_c csa.c
+
+csa_pascal: csa.pas
+	fpc csa.pas
