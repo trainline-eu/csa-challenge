@@ -1,0 +1,1 @@
+I=10e5;u=[];u<<$_.split.map(&:to_i)while gets>$/;while gets>$/;d,a,t=$_.split.map &:to_i;j=Hash.new I;e=j.dup;e[d]=t;if d<=I&&a<=I;f=I;i=0;u.map{|m,n,o,p|if e[m]<o&&p<e[n];e[n]=p;j[n]=i;n==a&&p<f&&f=p;end;i+=1;p>f&&next};end;i=j[a];r=[];while i<I;r=[u[i]*" "]+r;i=j[u[i][0]];end;r[0]||="NO_SOLUTION";puts r<<"";$>.flush;end
