@@ -94,11 +94,11 @@ struct TextualInput: InputType {
     
     func read(count: Int) throws -> [Int]? {
         guard let line = body() else { return nil }
-        guard line.characters.count > 0 else { return nil }
-        let components = line.componentsSeparatedByString(" ")
+        guard !line.isEmpty else { return nil }
+        let components = line.utf8.split(0x20)
         guard components.count == count else { throw Error("There should be exactly \(count) values on this line.") }
         return try components.map { component in
-            guard let integer = Int(component) else { throw Error("\"\(component)\" is not an integer.") }
+            guard let string = String(component), let integer = Int(string) else { throw Error("\"\(component)\" is not an integer.") }
             return integer
         }
     }
