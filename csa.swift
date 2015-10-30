@@ -65,15 +65,14 @@ struct Router {
             if let final = incoming[to] where connection.departure > final.arrival {
                 break
             }
-            if connection.from != from {
-                guard let previous = incoming[connection.from] where connection.departure > previous.arrival else {
-                    continue
-                }
-            }
             if let current = incoming[connection.to] where connection.arrival > current.arrival {
                 continue
             }
-            incoming[connection.to] = connection
+            if connection.from == from {
+                incoming[connection.to] = connection
+            } else if let previous = incoming[connection.from] where connection.departure > previous.arrival {
+                incoming[connection.to] = connection
+            }
         }
         var route: [Connection] = []
         var station = to
