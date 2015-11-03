@@ -12,3 +12,6 @@ csa_c: csa.c
 
 csa_pascal: csa.pas
 	fpc csa.pas
+
+csa_swift: csa.swift
+	xcrun --sdk macosx swiftc -O -o csa_swift csa.swift
