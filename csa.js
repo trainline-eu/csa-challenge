@@ -7,13 +7,16 @@ const MAX_STATION = 100000
 const INFINITY = 1 << 30
 const timetable = []
 
-function compute(trip) {
+function compute(trip) { // Crankshaft optimizable (Node v5.0.0)
   let earliestArr = new Array(MAX_STATION).fill(INFINITY)
   let inConn = []
+  let route = []
+  let station
 
   earliestArr[trip[DEP]] = trip[DEP_TS]
 
-  for (let conn of timetable) {
+  for (let i = 0; i < timetable.length ; i++) {
+    let conn = timetable[i]
     if (
       conn[DEP_TS] >= earliestArr[conn[DEP]] &&
       conn[ARR_TS] <  earliestArr[conn[ARR]]
@@ -29,8 +32,7 @@ function compute(trip) {
     return null
   }
 
-  let route = []
-  let station = trip[ARR]
+  station = trip[ARR]
   while (station !== trip[DEP]) {
     route.unshift(inConn[station])
     station = inConn[station][DEP]
