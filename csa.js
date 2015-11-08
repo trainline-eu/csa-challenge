@@ -4,26 +4,28 @@
 
 const DEP = 0, ARR = 1, DEP_TS = 2, ARR_TS = 3
 const MAX_STATION = 100000
-const INFINITY = 1 << 30
-const timetable = []
+let timetable = new Uint32Array(4)
+let timetableLength = 4
 
-function compute(trip) { // Crankshaft optimizable (Node v5.0.0)
-  let earliestArr = new Array(MAX_STATION).fill(INFINITY)
+function compute(trip) { // Crankshaft-optimizable (Node v5.0.0)
+  let earliestArr = new Uint32Array(MAX_STATION).fill(-1)
   let inConn = []
   let route = []
   let station
 
   earliestArr[trip[DEP]] = trip[DEP_TS]
 
-  for (let i = 0; i < timetable.length ; i++) {
-    let conn = timetable[i]
+  for (let offset = 0 ; offset < timetableLength ; offset = offset + 4 /* [1] */) {
+    // [1]: Crankshaft doesn't support let compound assignements ('offset += 4').
     if (
-      conn[DEP_TS] >= earliestArr[conn[DEP]] &&
-      conn[ARR_TS] <  earliestArr[conn[ARR]]
+      timetable[offset + DEP_TS] >= earliestArr[timetable[offset + DEP]] &&
+      timetable[offset + ARR_TS] <  earliestArr[timetable[offset + ARR]]
     ) {
-      inConn[conn[ARR]] = conn
-      earliestArr[conn[ARR]] = conn[ARR_TS]
-    } else if (conn[DEP_TS] >= earliestArr[trip[ARR]]) {
+      inConn[timetable[offset + ARR]] = new Uint32Array(
+        timetable.buffer, offset * Uint32Array.BYTES_PER_ELEMENT, 4
+      )
+      earliestArr[timetable[offset + ARR]] = timetable[offset + ARR_TS]
+    } else if (timetable[offset + DEP_TS] > earliestArr[trip[ARR]]) {
       break
     }
   }
@@ -55,7 +57,13 @@ require('readline')
 
     let connOrTrip = Uint32Array.from(line.split(' '))
     if (initializing) {
-      timetable.push(connOrTrip)
+      if (timetable.length === timetableLength) {
+        let aux = new Uint32Array(timetable.length << 1)
+        aux.set(timetable)
+        timetable = aux
+      }
+      timetable.set(connOrTrip, timetableLength)
+      timetableLength += 4
     } else {
       let route = compute(connOrTrip)
 
