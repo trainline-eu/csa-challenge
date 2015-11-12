@@ -28,10 +28,10 @@ function processConnection(line){
   process.stderr.write("adding connection" + line + "\n");
   var tokens = line.split(" ");
   timeTable.push({ 
-    departureStation : tokens[0],
-    arrivalStation : tokens[1],
-    departureTimestamp : tokens[2],
-    arrivalTimestamp : tokens[3]
+    departureStation : parseInt(tokens[0]),
+    arrivalStation : parseInt(tokens[1]),
+    departureTimestamp : parseInt(tokens[2]),
+    arrivalTimestamp : parseInt(tokens[3])
   });
 }
 
@@ -39,9 +39,9 @@ function processRequest(line){
   process.stderr.write("processing request" + line + "\n");
   var tokens = line.split(" ");
   var request = { 
-    departureStation : tokens[0],
-    arrivalStation : tokens[1],
-    departureTimestamp : tokens[2]
+    departureStation : parseInt(tokens[0]),
+    arrivalStation : parseInt(tokens[1]),
+    departureTimestamp : parseInt(tokens[2])
   };
   process.stderr.write("ready to compute request[" + request.departureStation + " " + request.arrivalStation + " " + request.departureTimestamp + "]\n");
   compute(request);
@@ -81,7 +81,10 @@ function mainLoop(request, inConnection, earliestArrival){
     process.stderr.write("earliestArrival[connection.departureStation] " + earliestArrival[connection.departureStation]+"\n");
     if(connection.departureTimestamp >= earliestArrival[connection.departureStation] && connection.arrivalTimestamp < earliestArrival[connection.arrivalStation]){
       process.stderr.write("considering connection at index "+index+"\n");
+      process.stderr.write("connection.arrivalTimestamp "+connection.arrivalTimestamp+" < earliestArrival[connection.arrivalStation]"+earliestArrival[connection.arrivalStation]+"\n");
       earliestArrival[connection.arrivalStation] = connection.arrivalTimestamp;
+      process.stderr.write("saved arrival at station  "+connection.arrivalStation+" at "+connection.arrivalTimestamp+"\n");
+      process.stderr.write("current earliestArrival = "+earliestArrival+" \n");
       inConnection[connection.arrivalStation] = index;
       if(connection.arrivalStation == request.arrivalStation){
         earliest = Math.min(earliest,connection.arrivalTimestamp)
@@ -118,8 +121,9 @@ function printResult(request, inConnection, earliestArrival){
     }
     route.reverse().forEach(function(connection){
       process.stderr.write("route goes throug : " + connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp +"\n");
-      console.log(""+connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp + "\n");
+      console.log(""+connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp );
     });
+    console.log("");
   }
   
 }
