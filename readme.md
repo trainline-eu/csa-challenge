@@ -135,6 +135,15 @@ Build: ```cargo build --release```
 
 Run the test with ```ruby test.rb ./target/release/csa_rs```
 
+
+## NodeJS implementation
+Requiers NodeJS installed
+
+Dependency installation: ```npm install .```
+
+Run the test with ```ruby test.rb "node ."```
+
+
 ## Challenge
 
 Try to write:
