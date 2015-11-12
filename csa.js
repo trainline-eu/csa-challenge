@@ -118,7 +118,7 @@ function printResult(request, inConnection, earliestArrival){
     }
     route.reverse().forEach(function(connection){
       process.stderr.write("route goes throug : " + connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp +"\n");
-      console.log(""+connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp);
+      console.log(""+connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp + "\n");
     });
   }
   
