@@ -7,3 +7,5 @@ csa_c
 *.class
 target/
 Cargo.lock
+node_modules/
+
