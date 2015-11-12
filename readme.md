@@ -1,6 +1,6 @@
 # CSA Challenge
 
-At Capitaine Train, we need to compute train routes to find the best combination
+At Captain Train, we need to compute train routes to find the best combination
 with different train operators.
 
 Our core routing engine is written in C++ and is based on the
@@ -69,7 +69,7 @@ as soon as `c.departure_timestamp > arrival_timestamp`.
 
 While this algorithm find routes, there are the following limitations to be aware of:
 
-* it computes the earliest arrival. However, a better solution might leaver later an arrive at the same time
+* it computes the earliest arrival. However, a better solution might leaver later and arrive at the same time
 * the route with the least connections will not be computed
 * no connection time is considered: you might have to run to get the next train
 * multiple stations in a City like Paris are not considered

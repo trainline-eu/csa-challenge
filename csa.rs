@@ -1,5 +1,5 @@
 use std::io;
-use std::iter::repeat;
+use std::io::{BufReader,BufRead};
 
 const MAX_STATIONS: usize = 100000;
 
@@ -13,7 +13,7 @@ struct Connection {
 
 impl Connection {
     fn parse(line: &str) -> Connection {
-        let mut splitted = line.split(" ").map(|bite| { bite.parse::<u32>().unwrap() });
+        let mut splitted = line.split(" ").map(|crumb| { crumb.parse::<u32>().unwrap() });
 
         Connection {
             departure_station: splitted.next().unwrap() as usize,
@@ -64,10 +64,8 @@ fn csa_print_result(timetable: &Vec<Connection>, in_connection: &[usize], arriva
 
 fn csa_compute(timetable: &Vec<Connection>, departure_station: usize, arrival_station: usize, departure_time: u32)
 {
-    let mut in_connection = Vec::new();
-    in_connection.extend(repeat(std::u32::MAX as usize).take(MAX_STATIONS));
-    let mut earliest_arrival = Vec::new();
-    earliest_arrival.extend(repeat(std::u32::MAX).take(MAX_STATIONS));
+    let mut in_connection = vec!(std::u32::MAX as usize; MAX_STATIONS);
+    let mut earliest_arrival = vec!(std::u32::MAX; MAX_STATIONS);
 
     earliest_arrival[departure_station as usize] = departure_time;
 
@@ -79,47 +77,29 @@ fn csa_compute(timetable: &Vec<Connection>, departure_station: usize, arrival_st
 }
 
 fn main() {
-    let mut timetable = Vec::<Connection>::new();
-
     // Importing connections
+    let mut buffered_in = BufReader::new(io::stdin()).lines();
 
-    loop {
-        let raw_line = {
-            let mut line = String::new();
-            io::stdin().read_line(&mut line).ok().expect("failed to read connection line");
-            line
-        };
-        let input_line = raw_line.trim_right();
-
-        if input_line.is_empty() {
-            break;
-        } else {
-            timetable.push(Connection::parse(input_line));
-        };
-    }
+    let timetable = buffered_in.map(|r| { r.ok().expect("failed to read connection line") })
+                               .take_while(|l| { !l.is_empty() })
+                               .map(|l| { Connection::parse(l.trim_right()) })
+                               .collect();
 
     // Responding to requests from stdin
 
-    loop {
-        let raw_line = {
-            let mut line = String::new();
-            io::stdin().read_line(&mut line).ok().expect("failed to read connection line");
-            line
-        };
-        let input_line = raw_line.trim_right();
+    buffered_in = BufReader::new(io::stdin()).lines();
 
-        if input_line.is_empty() {
-            break;
-        } else {
-            let params = input_line.split(" ")
-                .map(|bite| { bite.parse().ok().expect(&format!("failed to read {} as integer", bite)) })
-                .collect::<Vec<u32>>();
+    buffered_in.map(|r| { r.ok().expect("failed to read connection line") })
+               .take_while(|l| { !l.is_empty() })
+               .map(|input_line| {
+                   let params = input_line.split(" ")
+                       .map(|crumb| { crumb.parse().ok().expect(&format!("failed to read {} as integer", crumb)) })
+                       .collect::<Vec<u32>>();
 
-            let departure_station = params[0] as usize;
-            let arrival_station = params[1] as usize;
-            let departure_time = params[2];
+                   let departure_station = params[0] as usize;
+                   let arrival_station = params[1] as usize;
+                   let departure_time = params[2];
 
-            csa_compute(&timetable, departure_station, arrival_station, departure_time);
-        }
-    }
+                   csa_compute(&timetable, departure_station, arrival_station, departure_time);
+               }).collect::<Vec<_>>();
 }
