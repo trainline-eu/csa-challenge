@@ -71,17 +71,21 @@ function compute(request){
   //test if exceding MAX_STATIONS
   if(request.departureStation <= MAX_STATIONS && request.arrivalStation <= MAX_STATIONS){
     //mainLoop(request, inConnection, earliestArrival);
-    mainLoop2(request, earliestArrivalMinConnections,earliestArrival);
+    mainLoopLeastConnections(request, earliestArrivalMinConnections, inConnection, earliestArrival);
   }
 
-  //display the results 
-  //printResult(request, inConnection, earliestArrival);
-  printResult2(request,earliestArrivalMinConnections);
+  //display the results
+  if(hasSolutionOrReport(request, inConnection)){
+    printResult(request, inConnection);
+    printResultLeastConnections(request,earliestArrivalMinConnections, inConnection);
+    console.log("");//flush answer
+  } 
+
 
 }
 
-function mainLoop2(request, earliestArrivalMinConnections,earliestArrival){
-  process.stderr.write("doing mainloop2 \n");
+function mainLoopLeastConnections(request, earliestArrivalMinConnections, inConnection, earliestArrival){
+  process.stderr.write("doing mainloopLeastConnections \n");
   //loop with no optim what so ever.
   //we will store every possibility, options will be eliminated only after trying everything.
   timeTable.forEach(function(connection, indexOnTimetable){
@@ -89,8 +93,11 @@ function mainLoop2(request, earliestArrivalMinConnections,earliestArrival){
     //one can eliminate values if it departs too early
     if(connection.departureTimestamp >= earliestArrival[connection.departureStation]){
       process.stderr.write("Departure time is ok\n");
-      //update earliest arrival at station.
-      earliestArrival[connection.arrivalStation] = Math.min(earliestArrival[connection.arrivalStation], connection.arrivalTimestamp);
+      //update earliest arrival at station and inConnection
+      if(connection.arrivalTimestamp < earliestArrival[connection.arrivalStation]){
+        earliestArrival[connection.arrivalStation] = connection.arrivalTimestamp;
+        inConnection[connection.arrivalStation] = indexOnTimetable;
+      }
       //for each value of earliestArrivalMinConnections[connection.departureStation], 
       earliestArrivalMinConnections[connection.departureStation].forEach(function(value, index){//TODO, what out for index ovverriden. might lead to trouble !
         //see if value.arrivalTimestamp < connection.departureTimestamp.
@@ -156,52 +163,56 @@ function mainLoop(request, inConnection, earliestArrival){
   
 }
 
-function printResult2(request, earliestArrivalMinConnections){
-
-  if(earliestArrivalMinConnections[request.arrivalStation].length === 0){
+function hasSolutionOrReport(request, inConnection){
+   if(inConnection[request.arrivalStation] == Infinity){
     console.log("NO_SOLUTION");
     process.stderr.write("NO_SOLUTION\n");
+    return false;
   }else{
-    //for least ammount of connections, one hase to start at the arrival, and follow the links towards the start.
-    //if several choices, we will want to study both.
-    route = [];
-    var lastStep = {};
-
-    process.stderr.write("printResult2\n");
-
-    //find value for which connectionCount is minumum to get where to start.
-    var possibilities = earliestArrivalMinConnections[request.arrivalStation];
-
-    process.stderr.write("earliestArrivalMinConnections[request.arrivalStation] == "+earliestArrivalMinConnections[request.arrivalStation]+"\n");
-
-    var leastConnectionCount = Infinity;
-    var selectedPossibility = null;
-    for(var i = 0; i < possibilities.length; i++){
-      if(possibilities[i].connectionCount < leastConnectionCount){
-        leastConnectionCount = possibilities[i].connectionCount;
-        selectedPossibility = possibilities[i];
-      }
-    } 
-  
-
-
-  process.stderr.write("printresult2 selectedPossibility = "+ JSON.stringify(selectedPossibility)+"\n");
-
-    route.push(timeTable[selectedPossibility.refersToTimetableIndex]);
-  process.stderr.write("pushed "+ timeTable[selectedPossibility.refersToTimetableIndex]+"\n");
-
-    route = computeRoutes(selectedPossibility, earliestArrivalMinConnections, route);
-
-
-  process.stderr.write("printResult2 final route = "+ JSON.stringify(possibilities)+"\n");
-    
-    route.reverse().forEach(function(connection){
-      process.stderr.write("route goes throug : " + connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp +"\n");
-      console.log("1 "+connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp );
-    });
-    
-    console.log("");
+    return true;
   }
+}
+
+function printResultLeastConnections(request, earliestArrivalMinConnections){
+
+  //for least ammount of connections, one hase to start at the arrival, and follow the links towards the start.
+  //if several choices, we will want to study both.
+  route = [];
+  var lastStep = {};
+
+  process.stderr.write("printResultLeastConnections\n");
+
+  //find value for which connectionCount is minumum to get where to start.
+  var possibilities = earliestArrivalMinConnections[request.arrivalStation];
+
+  process.stderr.write("earliestArrivalMinConnections[request.arrivalStation] == "+earliestArrivalMinConnections[request.arrivalStation]+"\n");
+
+  var leastConnectionCount = Infinity;
+  var selectedPossibility = null;
+  for(var i = 0; i < possibilities.length; i++){
+    if(possibilities[i].connectionCount < leastConnectionCount){
+      leastConnectionCount = possibilities[i].connectionCount;
+      selectedPossibility = possibilities[i];
+    }
+  } 
+
+
+
+process.stderr.write("printresultLeastConnections selectedPossibility = "+ JSON.stringify(selectedPossibility)+"\n");
+
+  route.push(timeTable[selectedPossibility.refersToTimetableIndex]);
+process.stderr.write("pushed "+ timeTable[selectedPossibility.refersToTimetableIndex]+"\n");
+
+  route = computeRoutes(selectedPossibility, earliestArrivalMinConnections, route);
+
+
+process.stderr.write("printResultLeastConnections final route = "+ JSON.stringify(possibilities)+"\n");
+  
+  route.reverse().forEach(function(connection){
+    process.stderr.write("least connection route goes throug : " + connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp +"\n");
+    console.log("2 "+connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp );
+  });
+  
   
 }
 
@@ -238,30 +249,23 @@ function computeRoutes(lastStep, earliestArrivalMinConnections, route){
 
 
 
-function printResult(request, inConnection, earliestArrival){
+function printResult(request, inConnection){
 
 
   process.stderr.write("printing results \n");
-  process.stderr.write("with earliestArrival = "+earliestArrival+" \n");
   process.stderr.write("with inConnection = "+inConnection+" \n");
 
-  if(inConnection[request.arrivalStation] == Infinity){
-    console.log("NO_SOLUTION");
-    process.stderr.write("NO_SOLUTION\n");
-  }else{
-    route = [];
-    var lastConnectionIndex = inConnection[request.arrivalStation];
-    while(lastConnectionIndex != Infinity){
-      var connection = timeTable[lastConnectionIndex];
-      route.push(connection);
-      lastConnectionIndex = inConnection[connection.departureStation];
-    }
-    route.reverse().forEach(function(connection){
-      process.stderr.write("route goes throug : " + connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp +"\n");
-      console.log("1 "+connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp );
-    });
-    console.log("");
+  var route = [];
+  var lastConnectionIndex = inConnection[request.arrivalStation];
+  while(lastConnectionIndex != Infinity){
+    var connection = timeTable[lastConnectionIndex];
+    route.push(connection);
+    lastConnectionIndex = inConnection[connection.departureStation];
   }
+  route.reverse().forEach(function(connection){
+    process.stderr.write("fastest route goes throug : " + connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp +"\n");
+    console.log("1 "+connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp );
+  });
   
 }
 
