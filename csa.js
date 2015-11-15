@@ -46,13 +46,11 @@ function processRequest(line){
 }
 
 function compute(request){
-  var inConnection = [];
   var earliestArrival = [];
   var earliestArrivalMinConnections = []; //intended to store a list of {departureStation, arrivalTimestamp, ConnectionCount, refersToTimetableIndex}
 
   //init inConnection and earliestArrival
-  for(var i = 0; i < MAX_STATIONS ; i++){
-    inConnection[i] =  Infinity;         
+  for(var i = 0; i < MAX_STATIONS ; i++){     
     earliestArrival[i] = Infinity;    
     earliestArrivalMinConnections[i] = [];
   }
@@ -61,34 +59,34 @@ function compute(request){
   earliestArrivalMinConnections[request.departureStation].push({departureStation:NaN, 
                                                                 arrivalTimestamp: request.departureTimestamp, 
                                                                 connectionCount: 0, 
-                                                                refersToTimetableIndex: NaN});
+                                                                refersToTimetableIndex: NaN,
+                                                                inConnection: null
+                                                              });
 
   //test if exceding MAX_STATIONS
   if(request.departureStation <= MAX_STATIONS && request.arrivalStation <= MAX_STATIONS){
-    mainLoopLeastConnections(request, earliestArrivalMinConnections, inConnection, earliestArrival);
+    mainLoop(request, earliestArrivalMinConnections, earliestArrival);
   }
 
   //display the results
-  if(hasSolutionOrReport(request, inConnection)){
-    printResultFastest(request, inConnection);
-    printResultLeastConnections(request,earliestArrivalMinConnections, inConnection);
+  if(hasSolutionOrReport(request, earliestArrivalMinConnections)){
+    printResultFastest(request, earliestArrivalMinConnections);
+    printResultLeastConnections(request,earliestArrivalMinConnections);
     console.log("");//flush answer
   } 
 
 
 }
 
-function mainLoopLeastConnections(request, earliestArrivalMinConnections, inConnection, earliestArrival){
+function mainLoop(request, earliestArrivalMinConnections, earliestArrival){
   //loop with no optim what so ever.
   //we will store every possibility, options will be eliminated only after trying each timetable item.
   timeTable.forEach(function(connection, indexOnTimetable){
     //one can eliminate values if it departs too early
     if(connection.departureTimestamp >= earliestArrival[connection.departureStation]){//this connection can be used
-      if(connection.arrivalTimestamp < earliestArrival[connection.arrivalStation]){
-        earliestArrival[connection.arrivalStation] = connection.arrivalTimestamp; //update earliest arrival at station
-        inConnection[connection.arrivalStation] = indexOnTimetable;//for fastest route computation. 
-        //TODO : consider adding requiered info in the node that will be pushed to earliestArrivalMinConnections
-      }
+      //update earliest arrival at station
+      earliestArrival[connection.arrivalStation] = Math.min(connection.arrivalTimestamp, earliestArrival[connection.arrivalStation] ); 
+      
       //for each value of earliestArrivalMinConnections[connection.departureStation], 
       earliestArrivalMinConnections[connection.departureStation].forEach(function(value, index){//TODO, what out for index ovverriden. might lead to trouble !
         //see if value.arrivalTimestamp < connection.departureTimestamp.
@@ -99,7 +97,9 @@ function mainLoopLeastConnections(request, earliestArrivalMinConnections, inConn
           earliestArrivalMinConnections[connection.arrivalStation].push({departureStation:connection.departureStation, 
                                                                         arrivalTimestamp: connection.arrivalTimestamp, 
                                                                         connectionCount: value.connectionCount+1, 
-                                                                        refersToTimetableIndex: indexOnTimetable});
+                                                                        refersToTimetableIndex: indexOnTimetable,
+                                                                        inConnection: value
+                                                                      });
         }
       });
     }
@@ -129,8 +129,8 @@ function computeRouteLeastConnections(lastStep, earliestArrivalMinConnections, r
   return computeRouteLeastConnections(selectedPossibility, earliestArrivalMinConnections, route);
 }
 
-function hasSolutionOrReport(request, inConnection){
-   if(inConnection[request.arrivalStation] == Infinity){
+function hasSolutionOrReport(request, earliestArrivalMinConnections){
+   if(earliestArrivalMinConnections[request.arrivalStation].length == 0){
     console.log("NO_SOLUTION");
     process.stderr.write("NO_SOLUTION\n");
     return false;
@@ -138,16 +138,27 @@ function hasSolutionOrReport(request, inConnection){
     return true;
   }
 }
-
-function printResultFastest(request, inConnection){
+  
+function printResultFastest(request, earliestArrivalMinConnections){
 
   var route = [];
-  var lastConnectionIndex = inConnection[request.arrivalStation];
 
-  while(lastConnectionIndex != Infinity){
-    var connection = timeTable[lastConnectionIndex];
-    route.push(connection);
-    lastConnectionIndex = inConnection[connection.departureStation];
+  //find value for which arrivalTimestamp is minumum to get where to start.
+  var possibilities = earliestArrivalMinConnections[request.arrivalStation];
+
+  var LeastArrivalTimestamp = Infinity;
+  var selectedPossibility = null;
+  for(var i = 0; i < possibilities.length; i++){
+    if(possibilities[i].arrivalTimestamp < LeastArrivalTimestamp){
+      LeastArrivalTimestamp = possibilities[i].arrivalTimestamp;
+      selectedPossibility = possibilities[i];
+    }
+  } 
+
+  //While we didn't reach the destination, follow the node using the property inConnection
+  while(selectedPossibility.inConnection != null){
+    route.push(timeTable[selectedPossibility.refersToTimetableIndex]);
+    selectedPossibility = selectedPossibility.inConnection;
   }
 
   route.reverse().forEach(function(connection){
