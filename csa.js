@@ -95,7 +95,7 @@ function mainLoopLeastConnections(request, earliestArrivalMinConnections, inConn
         //if it is the case, then, look up for the number of connection, 
         if(value.arrivalTimestamp < connection.departureTimestamp){
           //and append a new value to the array earliestArrivalMinConnections[connection.arrivalStation], incrementing the connectionCount
-          //TODO : consider not adding if one already arrived at this station earlier with the same connection count, reduces computation and space cost of computeRoutes function
+          //TODO : consider not adding if one already arrived at this station earlier with the same connection count, reduces computation and space cost of computeRouteLeastConnections function
           earliestArrivalMinConnections[connection.arrivalStation].push({departureStation:connection.departureStation, 
                                                                         arrivalTimestamp: connection.arrivalTimestamp, 
                                                                         connectionCount: value.connectionCount+1, 
@@ -107,7 +107,7 @@ function mainLoopLeastConnections(request, earliestArrivalMinConnections, inConn
 }
 
 
-function computeRoutes(lastStep, earliestArrivalMinConnections, route){
+function computeRouteLeastConnections(lastStep, earliestArrivalMinConnections, route){
   //if lastStep is null, we have to base of the request
   //for each possible step at this station, look if we are done
   var possibilities = earliestArrivalMinConnections[lastStep.departureStation];
@@ -126,7 +126,7 @@ function computeRoutes(lastStep, earliestArrivalMinConnections, route){
     route.push(timeTable[selectedPossibility.refersToTimetableIndex]);
   }
 
-  return computeRoutes(selectedPossibility, earliestArrivalMinConnections, route);
+  return computeRouteLeastConnections(selectedPossibility, earliestArrivalMinConnections, route);
 }
 
 function hasSolutionOrReport(request, inConnection){
@@ -179,7 +179,7 @@ function printResultLeastConnections(request, earliestArrivalMinConnections){
   } 
 
   route.push(timeTable[selectedPossibility.refersToTimetableIndex]);
-  route = computeRoutes(selectedPossibility, earliestArrivalMinConnections, route);
+  route = computeRouteLeastConnections(selectedPossibility, earliestArrivalMinConnections, route);
 
   route.reverse().forEach(function(connection){
     process.stderr.write("least connection route goes throug : " + connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp +"\n");
