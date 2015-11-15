@@ -70,7 +70,7 @@ function compute(request){
 
   //display the results
   if(hasSolutionOrReport(request, earliestArrivalMinConnections)){
-    printResultFastest(request, earliestArrivalMinConnections);
+    printResultEarliest(request, earliestArrivalMinConnections);
     printResultLeastConnections(request,earliestArrivalMinConnections);
     console.log("");//flush answer
   } 
@@ -139,7 +139,7 @@ function hasSolutionOrReport(request, earliestArrivalMinConnections){
   }
 }
   
-function printResultFastest(request, earliestArrivalMinConnections){
+function printResultEarliest(request, earliestArrivalMinConnections){
 
   var route = [];
 
@@ -173,7 +173,7 @@ function printResultFastest(request, earliestArrivalMinConnections){
 function printResultLeastConnections(request, earliestArrivalMinConnections){
 
   //for least ammount of connections, one has to start at the arrival, and follow the links towards the start.
-  //TODO if several choices, we will want to study both. 
+  //TODO if several choices, criteria should help choosing. 
   route = [];
   var lastStep = {};
 
