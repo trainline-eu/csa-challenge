@@ -164,17 +164,7 @@ function orderStepsBy_ConnectionCount_EarliestArrival_LatestDeparture(a,b){
   }else if (a.connectionCount > b.connectionCount){
     return 1;
   }else{
-    if (a.arrivalTimestamp < b.arrivalTimestamp){
-      return -1;
-    }else if (a.arrivalTimestamp > b.arrivalTimestamp){
-      return 1;
-    }else{
-      if (a.departureTimestamp > b.departureTimestamp){
-        return -1;
-      }else if (a.departureTimestamp < b.departureTimestamp){
-        return 1;
-      }
-    }
+    return orderStepsBy_EarliestArrival_LatestDeparture(a,b);
   }
   return 0;
 }
