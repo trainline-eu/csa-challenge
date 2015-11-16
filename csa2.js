@@ -57,8 +57,9 @@ function compute(request){
 
   earliestArrival[request.departureStation] = request.departureTimestamp;
   earliestArrivalMinConnections[request.departureStation].push({departureStation:NaN, 
+                                                                departureTimestamp:NaN,
                                                                 arrivalTimestamp: request.departureTimestamp, 
-                                                                connectionCount: 0, 
+                                                                connectionCount: -1, 
                                                                 refersToTimetableIndex: NaN,
                                                                 inConnection: null
                                                               });
@@ -95,6 +96,7 @@ function mainLoop(request, earliestArrivalMinConnections, earliestArrival){
           //and append a new value to the array earliestArrivalMinConnections[connection.arrivalStation], incrementing the connectionCount
           //TODO : consider not adding if one already arrived at this station earlier with the same connection count, reduces computation and space cost of computeRouteLeastConnections function
           earliestArrivalMinConnections[connection.arrivalStation].push({departureStation:connection.departureStation, 
+                                                                        departureTimestamp:value.departureTimestamp ? value.departureTimestamp : connection.departureTimestamp,//TODO This repeats the information on every node. Consider adding it only to the node departing from origin
                                                                         arrivalTimestamp: connection.arrivalTimestamp, 
                                                                         connectionCount: value.connectionCount+1, 
                                                                         refersToTimetableIndex: indexOnTimetable,
@@ -146,14 +148,25 @@ function printResultEarliest(request, earliestArrivalMinConnections){
   //find value for which arrivalTimestamp is minumum to get where to start.
   var possibilities = earliestArrivalMinConnections[request.arrivalStation];
 
-  var LeastArrivalTimestamp = Infinity;
+  var leastArrivalTimestamp = Infinity;
+  var biggestDepartureTime = -Infinity;
   var selectedPossibility = null;
   for(var i = 0; i < possibilities.length; i++){
-    if(possibilities[i].arrivalTimestamp < LeastArrivalTimestamp){
-      LeastArrivalTimestamp = possibilities[i].arrivalTimestamp;
+    if(possibilities[i].arrivalTimestamp < leastArrivalTimestamp){
+      leastArrivalTimestamp = possibilities[i].arrivalTimestamp;
       selectedPossibility = possibilities[i];
+      biggestDepartureTime = possibilities[i].departureTimestamp;
+    }else if(possibilities[i].arrivalTimestamp === leastArrivalTimestamp){
+      if(biggestDepartureTime < possibilities[i].departureTimestamp){
+        leastArrivalTimestamp = possibilities[i].arrivalTimestamp;
+        selectedPossibility = possibilities[i];
+        biggestDepartureTime = possibilities[i].departureTimestamp;      
+      }
     }
   } 
+
+  process.stderr.write("selectedPossibility = " + JSON.stringify(selectedPossibility) + "\n");
+  process.stderr.write("earliestArrivalMinConnections = " + JSON.stringify(earliestArrivalMinConnections) + "\n");
 
   //While we didn't reach the destination, follow the node using the property inConnection
   while(selectedPossibility.inConnection != null){
@@ -181,12 +194,31 @@ function printResultLeastConnections(request, earliestArrivalMinConnections){
   var possibilities = earliestArrivalMinConnections[request.arrivalStation];
 
   var leastConnectionCount = Infinity;
+  var leastArrivalTimestamp = Infinity;
+  var biggestDepartureTime = -Infinity;
   var selectedPossibility = null;
   for(var i = 0; i < possibilities.length; i++){
     if(possibilities[i].connectionCount < leastConnectionCount){
       leastConnectionCount = possibilities[i].connectionCount;
+      leastArrivalTimestamp = possibilities[i].arrivalTimestamp;
       selectedPossibility = possibilities[i];
+      biggestDepartureTime = possibilities[i].departureTimestamp; 
+    }else if(possibilities[i].connectionCount === leastConnectionCount ){
+      if(possibilities[i].arrivalTimestamp < leastArrivalTimestamp){
+        leastArrivalTimestamp = possibilities[i].arrivalTimestamp;
+        selectedPossibility = possibilities[i];
+        biggestDepartureTime = possibilities[i].departureTimestamp;
+      }else if(possibilities[i].arrivalTimestamp === leastArrivalTimestamp){
+        if(biggestDepartureTime < possibilities[i].departureTimestamp){
+          leastArrivalTimestamp = possibilities[i].arrivalTimestamp;
+          selectedPossibility = possibilities[i];
+          biggestDepartureTime = possibilities[i].departureTimestamp;      
+        }
+      }
     }
+      
+    
+
   } 
 
   route.push(timeTable[selectedPossibility.refersToTimetableIndex]);
