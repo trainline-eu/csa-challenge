@@ -151,6 +151,7 @@ function printResultEarliest(request, earliestArrivalMinConnections){
   var leastArrivalTimestamp = Infinity;
   var biggestDepartureTime = -Infinity;
   var selectedPossibility = null;
+  //TODO : consider sorting possibilities on several properties instead of manual lookup.
   for(var i = 0; i < possibilities.length; i++){
     if(possibilities[i].arrivalTimestamp < leastArrivalTimestamp){
       leastArrivalTimestamp = possibilities[i].arrivalTimestamp;
@@ -158,7 +159,6 @@ function printResultEarliest(request, earliestArrivalMinConnections){
       biggestDepartureTime = possibilities[i].departureTimestamp;
     }else if(possibilities[i].arrivalTimestamp === leastArrivalTimestamp){
       if(biggestDepartureTime < possibilities[i].departureTimestamp){
-        leastArrivalTimestamp = possibilities[i].arrivalTimestamp;
         selectedPossibility = possibilities[i];
         biggestDepartureTime = possibilities[i].departureTimestamp;      
       }
@@ -194,6 +194,7 @@ function printResultLeastConnections(request, earliestArrivalMinConnections){
   var leastArrivalTimestamp = Infinity;
   var biggestDepartureTime = -Infinity;
   var selectedPossibility = null;
+  //TODO : consider sorting possibilities on several properties instead of manual lookup.
   for(var i = 0; i < possibilities.length; i++){
     if(possibilities[i].connectionCount < leastConnectionCount){
       leastConnectionCount = possibilities[i].connectionCount;
@@ -207,7 +208,6 @@ function printResultLeastConnections(request, earliestArrivalMinConnections){
         biggestDepartureTime = possibilities[i].departureTimestamp;
       }else if(possibilities[i].arrivalTimestamp === leastArrivalTimestamp){
         if(biggestDepartureTime < possibilities[i].departureTimestamp){
-          leastArrivalTimestamp = possibilities[i].arrivalTimestamp;
           selectedPossibility = possibilities[i];
           biggestDepartureTime = possibilities[i].departureTimestamp;      
         }
