@@ -190,7 +190,6 @@ function printResultEarliest(request, earliestArrivalMinConnections){
 
   route.reverse().forEach(function(connection){
     process.stderr.write("EARLIEST_ARRIVAL : " + connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp +"\n");
-    //solutionType 1 indicates fastest route
     console.log("EARLIEST_ARRIVAL "+connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp );
   });
 
@@ -214,7 +213,6 @@ function printResultEarliest(request, earliestArrivalMinConnections){
 
       route.reverse().forEach(function(connection){
         process.stderr.write("EARLIEST_ARRIVAL_WITH_EASY_TRANSFERS : " + connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp +"\n");
-        //solutionType 1 indicates fastest route
         console.log("EARLIEST_ARRIVAL_WITH_EASY_TRANSFERS "+connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp );
       });
     }
@@ -242,7 +240,6 @@ function printResultLeastConnections(request, earliestArrivalMinConnections){
 
   route.reverse().forEach(function(connection){
     process.stderr.write("LEAST_CONNECTIONS " + connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp +"\n");
-    //solution type 2 indicates least connection number route
     console.log("LEAST_CONNECTIONS "+connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp );
   });  
 
@@ -265,7 +262,6 @@ function printResultLeastConnections(request, earliestArrivalMinConnections){
 
       route.reverse().forEach(function(connection){
         process.stderr.write("LEAST_CONNECTIONS_WITH_EASY_TRANSFERS " + connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp +"\n");
-        //solution type 2 indicates least connection number route
         console.log("LEAST_CONNECTIONS_WITH_EASY_TRANSFERS "+connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp );
       });  
 
