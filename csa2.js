@@ -165,9 +165,6 @@ function printResultEarliest(request, earliestArrivalMinConnections){
     }
   } 
 
-  process.stderr.write("selectedPossibility = " + JSON.stringify(selectedPossibility) + "\n");
-  process.stderr.write("earliestArrivalMinConnections = " + JSON.stringify(earliestArrivalMinConnections) + "\n");
-
   //While we didn't reach the destination, follow the node using the property inConnection
   while(selectedPossibility.inConnection != null){
     route.push(timeTable[selectedPossibility.refersToTimetableIndex]);
