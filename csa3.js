@@ -89,6 +89,25 @@ function compute(request){
                                                                 minimumTransferTime : Infinity
                                                               });
 
+  var addedNoded = earliestArrivalMinConnections[request.departureStation][0];          
+
+  var sameCityPossibleConnections = sameCityConnections.filter(function(c){ return c.departureStation === request.departureStation;});
+  sameCityPossibleConnections.forEach(function(c){
+    earliestArrivalMinConnections[c.arrivalStation].push({departureStation:c.departureStation, 
+                                                          departureTimestamp: request.departureTimestamp,
+                                                          arrivalTimestamp: c.travelTime, 
+                                                          connectionCount: addedNoded.connectionCount+1, 
+                                                          refersToTimetableIndex: null,
+                                                          fakeConnection: {departureStation :c.departureStation,
+                                                                            departureTimestamp:request.departureTimestamp,
+                                                                            arrivalStation:c.arrivalStation,
+                                                                            arrivalTimestamp:request.departureTimestamp + c.travelTime
+                                                                          },
+                                                          inConnection: addedNoded,
+                                                          minimumTransferTime:addedNoded.minimumTransferTime
+                                                        });
+  });
+
   //test if exceding MAX_STATIONS
   if(request.departureStation <= MAX_STATIONS && request.arrivalStation <= MAX_STATIONS){
     mainLoop(request, earliestArrivalMinConnections, earliestArrival);
@@ -131,9 +150,7 @@ function mainLoop(request, earliestArrivalMinConnections, earliestArrival){
                                                                         minimumTransferTime: ( value.departureStation ? Math.min(value.minimumTransferTime, connection.departureTimestamp - value.arrivalTimestamp) : value.minimumTransferTime )
                                                                         //only consider it to be a transfer if previsous step is not the initial arrival
                                                                       });
-          var addedNoded = earliestArrivalMinConnections[connection.arrivalStation][earliestArrivalMinConnections[connection.arrivalStation].length-1];
-          //process.stderr.write("ADDEDNODE = " + JSON.stringify(addedNoded)+ "\n");
-          
+          var addedNoded = earliestArrivalMinConnections[connection.arrivalStation][earliestArrivalMinConnections[connection.arrivalStation].length-1];          
 
           var sameCityPossibleConnections = sameCityConnections.filter(function(c){ return c.departureStation === connection.arrivalStation;});
           sameCityPossibleConnections.forEach(function(c){
@@ -151,10 +168,6 @@ function mainLoop(request, earliestArrivalMinConnections, earliestArrival){
                                                                   minimumTransferTime:addedNoded.minimumTransferTime
                                                                 });
           });
-          //TODO : test if this station is connected to another station via same city.
-          //if it is, push another step, using that connection.
-          //TODO : how not to break the print functions ?
-          //how about placing an object in refersToTimeTableIndex.
 
         }
       });
