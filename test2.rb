@@ -46,11 +46,11 @@ EOF
       while !line.empty?
         tokens = line.split " "
         result << {
-          :solution_type => tokens[0].to_i,
+          :solution_type => tokens[0],
           :departure_station => tokens[1].to_i,
           :arrival_station => tokens[2].to_i,
           :departure_timestamp => tokens[3].to_i,
-          :arrival_timestamp => tokens[4].to_i,
+          :arrival_timestamp => tokens[4].to_i
         }
 
         line = io.gets.strip
@@ -65,12 +65,12 @@ EOF
     @io.puts "1 2 3000"
     response = read_answer @io
     assert_equal 2, response.size
-    assert_equal 1, response[0][:solution_type]
+    assert_equal "EARLIEST_ARRIVAL", response[0][:solution_type]
     assert_equal 1, response[0][:departure_station]
     assert_equal 2, response[0][:arrival_station]
     assert_equal 3600, response[0][:departure_timestamp]
     assert_equal 7200, response[0][:arrival_timestamp]
-    assert_equal 2, response[1][:solution_type]
+    assert_equal "LEAST_CONNECTIONS", response[1][:solution_type]
     assert_equal 1, response[1][:departure_station]
     assert_equal 2, response[1][:arrival_station]
     assert_equal 3600, response[1][:departure_timestamp]
@@ -82,15 +82,15 @@ EOF
     @io.puts "1 3 3000"
     response = read_answer @io
     assert_equal 3, response.size
-    assert_equal 1, response[0][:solution_type]
+    assert_equal "EARLIEST_ARRIVAL", response[0][:solution_type]
     assert_equal 1, response[0][:departure_station]
     assert_equal 2, response[0][:arrival_station]
     assert_equal 7200, response[0][:arrival_timestamp]
-    assert_equal 1, response[1][:solution_type]
+    assert_equal "EARLIEST_ARRIVAL", response[1][:solution_type]
     assert_equal 2, response[1][:departure_station]
     assert_equal 3, response[1][:arrival_station]
     assert_equal 9000, response[1][:arrival_timestamp]
-    assert_equal 2, response[2][:solution_type]
+    assert_equal "LEAST_CONNECTIONS", response[2][:solution_type]
     assert_equal 1, response[2][:departure_station]
     assert_equal 3, response[2][:arrival_station]
     assert_equal 10000, response[2][:arrival_timestamp]
@@ -101,12 +101,12 @@ EOF
     @io.puts "1 3 4000"
     response = read_answer @io
     assert_equal 2, response.size
-    assert_equal 1, response[0][:solution_type]
+    assert_equal "EARLIEST_ARRIVAL", response[0][:solution_type]
     assert_equal 1, response[0][:departure_station]
     assert_equal 3, response[0][:arrival_station]
     assert_equal 10000, response[0][:arrival_timestamp]
 
-    assert_equal 2, response[1][:solution_type]
+    assert_equal "LEAST_CONNECTIONS", response[1][:solution_type]
     assert_equal 1, response[1][:departure_station]
     assert_equal 3, response[1][:arrival_station]
     assert_equal 10000, response[1][:arrival_timestamp]
@@ -145,15 +145,15 @@ EOF
     @io.puts "5 8 19000"
     response = read_answer @io
     assert_equal 3, response.size
-    assert_equal 1, response[0][:solution_type]
+    assert_equal "EARLIEST_ARRIVAL", response[0][:solution_type]
     assert_equal 5, response[0][:departure_station]
     assert_equal 7, response[0][:arrival_station]
     assert_equal 23500, response[0][:arrival_timestamp]
-    assert_equal 1, response[1][:solution_type]
+    assert_equal "EARLIEST_ARRIVAL", response[1][:solution_type]
     assert_equal 7, response[1][:departure_station]
     assert_equal 8, response[1][:arrival_station]
     assert_equal 25000, response[1][:arrival_timestamp]
-    assert_equal 2, response[2][:solution_type]
+    assert_equal "LEAST_CONNECTIONS", response[2][:solution_type]
     assert_equal 5, response[2][:departure_station]
     assert_equal 8, response[2][:arrival_station]
     assert_equal 21000, response[2][:departure_timestamp]

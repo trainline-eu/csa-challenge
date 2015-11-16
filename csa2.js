@@ -4,6 +4,7 @@ var split = require('split');
 var isTimetableLoaded = false;
 var timeTable = [];
 const MAX_STATIONS = 10;
+const TRANSFER_TIME_THRESHOLD = 900; //15 minutes
 
   
 //first we get the connextions from stdin, then an empty line, then one request at a time.
@@ -97,13 +98,15 @@ function mainLoop(request, earliestArrivalMinConnections, earliestArrival){
         if(value.arrivalTimestamp < connection.departureTimestamp){
           //and append a new value to the array earliestArrivalMinConnections[connection.arrivalStation], incrementing the connectionCount
           //TODO : consider not adding if one already arrived at this station earlier with the same connection count, reduces computation and space cost of computeRouteLeastConnections function
+          //TODO : consider making minimum transfer time station specific. If so, store a boolean and compare each time with the corresponding threshold
           earliestArrivalMinConnections[connection.arrivalStation].push({departureStation:connection.departureStation, 
                                                                         departureTimestamp:value.departureTimestamp ? value.departureTimestamp : connection.departureTimestamp,//TODO This repeats the information on every node. Consider adding it only to the node departing from origin
                                                                         arrivalTimestamp: connection.arrivalTimestamp, 
                                                                         connectionCount: value.connectionCount+1, 
                                                                         refersToTimetableIndex: indexOnTimetable,
                                                                         inConnection: value,
-                                                                        minimumTransferTime: Math.min(value.minimumTransferTime, connection.departureTimestamp - value.arrivalTimestamp)
+                                                                        minimumTransferTime: value.departureStation ? Math.min(value.minimumTransferTime, connection.departureTimestamp - value.arrivalTimestamp) : value.minimumTransferTime
+                                                                        //only consider it to be a transfer if previsous step is not the initial arrival
                                                                       });
         }
       });
@@ -162,6 +165,8 @@ function printResultEarliest(request, earliestArrivalMinConnections){
     }
   } 
 
+  var routeHasShortTransferTime = selectedPossibility.minimumTransferTime < TRANSFER_TIME_THRESHOLD;
+
   //While we didn't reach the destination, follow the node using the property inConnection
   while(selectedPossibility.inConnection != null){
     route.push(timeTable[selectedPossibility.refersToTimetableIndex]);
@@ -169,10 +174,15 @@ function printResultEarliest(request, earliestArrivalMinConnections){
   }
 
   route.reverse().forEach(function(connection){
-    process.stderr.write("fastest route goes throug : " + connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp +"\n");
+    process.stderr.write("EARLIEST_ARRIVAL : " + connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp +"\n");
     //solutionType 1 indicates fastest route
-    console.log("1 "+connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp );
+    console.log("EARLIEST_ARRIVAL "+connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp );
   });
+
+
+  if(routeHasShortTransferTime){//compute an alternative route without short transfer.
+    process.stderr.write("short transfer !! \n");
+  } 
   
 }
 
@@ -186,6 +196,7 @@ function printResultLeastConnections(request, earliestArrivalMinConnections){
 
   //find value for which connectionCount is minumum to get where to start.
   var possibilities = earliestArrivalMinConnections[request.arrivalStation];
+
 
   var leastConnectionCount = Infinity;
   var leastArrivalTimestamp = Infinity;
@@ -215,14 +226,22 @@ function printResultLeastConnections(request, earliestArrivalMinConnections){
 
   } 
 
+  var routeHasShortTransferTime = selectedPossibility.minimumTransferTime < TRANSFER_TIME_THRESHOLD;
+
   route.push(timeTable[selectedPossibility.refersToTimetableIndex]);
   route = computeRouteLeastConnections(selectedPossibility, earliestArrivalMinConnections, route);
 
   route.reverse().forEach(function(connection){
-    process.stderr.write("least connection route goes throug : " + connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp +"\n");
+    if(routeHasShortTransferTime)  process.stderr.write("short transfer !! ");
+    process.stderr.write("LEAST_CONNECTIONS " + connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp +"\n");
     //solution type 2 indicates least connection number route
-    console.log("2 "+connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp );
+    console.log("LEAST_CONNECTIONS "+connection.departureStation+" "+connection.arrivalStation+" "+connection.departureTimestamp+" "+connection.arrivalTimestamp );
   });  
+
+  if(routeHasShortTransferTime){//compute an alternative route without short transfer.
+    process.stderr.write("short transfer !! \n");
+  } 
+
 }
 
 
