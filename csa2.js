@@ -61,7 +61,8 @@ function compute(request){
                                                                 arrivalTimestamp: request.departureTimestamp, 
                                                                 connectionCount: -1, 
                                                                 refersToTimetableIndex: NaN,
-                                                                inConnection: null
+                                                                inConnection: null,
+                                                                minimumTransferTime : +Infinity
                                                               });
 
   //test if exceding MAX_STATIONS
@@ -84,6 +85,7 @@ function mainLoop(request, earliestArrivalMinConnections, earliestArrival){
   //we will store every possibility, options will be eliminated only after trying each timetable item.
   timeTable.forEach(function(connection, indexOnTimetable){
     //one can eliminate values if it departs too early
+    //TODO : consider looking up earliestArrival based on data already present in earliestArrivalMinConnections. for space complexity optim at cost of time complexity
     if(connection.departureTimestamp >= earliestArrival[connection.departureStation]){//this connection can be used
       //update earliest arrival at station
       earliestArrival[connection.arrivalStation] = Math.min(connection.arrivalTimestamp, earliestArrival[connection.arrivalStation] ); 
@@ -100,7 +102,8 @@ function mainLoop(request, earliestArrivalMinConnections, earliestArrival){
                                                                         arrivalTimestamp: connection.arrivalTimestamp, 
                                                                         connectionCount: value.connectionCount+1, 
                                                                         refersToTimetableIndex: indexOnTimetable,
-                                                                        inConnection: value
+                                                                        inConnection: value,
+                                                                        minimumTransferTime: Math.min(value.minimumTransferTime, connection.departureTimestamp - value.arrivalTimestamp)
                                                                       });
         }
       });
@@ -114,13 +117,7 @@ function computeRouteLeastConnections(lastStep, earliestArrivalMinConnections, r
   //for each possible step at this station, look if we are done
   var possibilities = earliestArrivalMinConnections[lastStep.departureStation];
   
-  var selectedPossibility = null;
-  for(var i = 0; i < possibilities.length; i++){
-    if(possibilities[i].connectionCount === lastStep.connectionCount - 1){
-      leastConnectionCount = possibilities[i].connectionCount;
-      selectedPossibility = possibilities[i];
-    }
-  } 
+  var selectedPossibility = lastStep.inConnection;
   
   if(!selectedPossibility.refersToTimetableIndex){//found our starting point
     return route;
