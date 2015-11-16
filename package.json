@@ -2,7 +2,7 @@
   "name": "CSACaptainTrainChallenge",
   "version": "0.0.0",
   "description": "JS implementation of the CSA challenge by Captain Train",
-  "main": "CSA.js",
+  "main": "csa.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

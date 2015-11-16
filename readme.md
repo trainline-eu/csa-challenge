@@ -142,6 +142,7 @@ Requiers NodeJS installed
 Dependency installation: ```npm install .```
 
 Run the test with ```ruby test.rb "node ."```
+Run the test with ```ruby test2.rb "node csa2.js"``` to run test that cover limitation 1, 2 and 3
 
 
 ## Challenge
