@@ -69,10 +69,12 @@ as soon as `c.departure_timestamp > arrival_timestamp`.
 
 While this algorithm find routes, there are the following limitations to be aware of:
 
-* it computes the earliest arrival. However, a better solution might leaver later and arrive at the same time
-* the route with the least connections will not be computed
-* no connection time is considered: you might have to run to get the next train
-* multiple stations in a City like Paris are not considered
+1. it computes the earliest arrival. However, a better solution might leaver later and arrive at the same time
+2. the route with the least connections will not be computed
+3. no connection time is considered: you might have to run to get the next train
+4. multiple stations in a City like Paris are not considered
+
+`test2.rb` and `test3.rb` offer tests that cover those limitation.
 
 ## Input/output
 
@@ -142,8 +144,8 @@ Requiers NodeJS installed
 Dependency installation: ```npm install .```
 
 Run the test with ```ruby test.rb "node ."```
-Run the test with ```ruby test2.rb "node csa2.js"``` to run test that cover limitation 1, 2 and 3
-
+Run the test with ```ruby test2.rb "node csa2.js"``` to run tests that cover limitations 1, 2 and 3
+Run the test with ```ruby test3.rb "node csa3.js"``` to run tests that cover limitations 1, 2, 3 and 4
 
 ## Challenge
 
