@@ -95,17 +95,18 @@ function compute(request){
   sameCityPossibleConnections.forEach(function(c){
     earliestArrivalMinConnections[c.arrivalStation].push({departureStation:c.departureStation, 
                                                           departureTimestamp: request.departureTimestamp,
-                                                          arrivalTimestamp: c.travelTime, 
+                                                          arrivalTimestamp: request.departureTimestamp + c.travelTime, 
                                                           connectionCount: addedNoded.connectionCount+1, 
                                                           refersToTimetableIndex: null,
-                                                          fakeConnection: {departureStation :c.departureStation,
-                                                                            departureTimestamp:request.departureTimestamp,
-                                                                            arrivalStation:c.arrivalStation,
-                                                                            arrivalTimestamp:request.departureTimestamp + c.travelTime
+                                                          fakeConnection: {departureStation: c.departureStation,
+                                                                            departureTimestamp: request.departureTimestamp,
+                                                                            arrivalStation: c.arrivalStation,
+                                                                            arrivalTimestamp: request.departureTimestamp + c.travelTime
                                                                           },
                                                           inConnection: addedNoded,
                                                           minimumTransferTime:addedNoded.minimumTransferTime
                                                         });
+    earliestArrival[c.arrivalStation] = request.departureTimestamp + c.travelTime;
   });
 
   //test if exceding MAX_STATIONS
@@ -155,8 +156,8 @@ function mainLoop(request, earliestArrivalMinConnections, earliestArrival){
           var sameCityPossibleConnections = sameCityConnections.filter(function(c){ return c.departureStation === connection.arrivalStation;});
           sameCityPossibleConnections.forEach(function(c){
             earliestArrivalMinConnections[c.arrivalStation].push({departureStation:c.departureStation, 
-                                                                  departureTimestamp: connection.arrivalTimestamp,
-                                                                  arrivalTimestamp: c.travelTime, 
+                                                                  departureTimestamp: addedNoded.departureTimestamp,
+                                                                  arrivalTimestamp: connection.arrivalTimestamp + c.travelTime, 
                                                                   connectionCount: addedNoded.connectionCount+1, 
                                                                   refersToTimetableIndex: null,
                                                                   fakeConnection: {departureStation :c.departureStation,
@@ -167,12 +168,15 @@ function mainLoop(request, earliestArrivalMinConnections, earliestArrival){
                                                                   inConnection: addedNoded,
                                                                   minimumTransferTime:addedNoded.minimumTransferTime
                                                                 });
+
+            earliestArrival[c.arrivalStation] = connection.arrivalTimestamp + c.travelTime;
           });
 
         }
       });
     }
-  });  
+  }); 
+
 }
 
 
