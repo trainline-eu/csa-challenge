@@ -9,12 +9,15 @@ const INFINITY = Math.pow(2, 32) - 1
 let timetable = new Uint32Array(4)
 let timetableLength = 0 // Actual number of elements in 'timetable'
 
+const inConn = new Uint32Array(MAX_STATION)
+const earliestArr = new Uint32Array(MAX_STATION)
+
 function compute(trip) { // Crankshaft-optimizable (Node v5.0.0)
-  const earliestArr = new Uint32Array(MAX_STATION).fill(INFINITY)
-  const inConn = new Uint32Array(MAX_STATION).fill(INFINITY)
   let route = []
   let station
 
+  inConn.fill(INFINITY)
+  earliestArr.fill(INFINITY)
   earliestArr[trip[DEP]] = trip[DEP_TS]
 
   for (let i = 0 ; i < timetableLength ; i = i + 4 /* [1] */) {
