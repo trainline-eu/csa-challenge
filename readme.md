@@ -74,7 +74,31 @@ While this algorithm find routes, there are the following limitations to be awar
 3. no connection time is considered: you might have to run to get the next train
 4. multiple stations in a City like Paris are not considered
 
+### Pushing the limits
 `test2.rb` and `test3.rb` offer tests that cover those limitation.
+
+#### Input
+`test2.rb` doesn't change input structure with regard to the original tests.
+
+`test3.rb` sends a indications on station that are in the same icity and requiered time using local public transportation between the timetable and requests. Exemple :
+```
+1 2 3600 7200
+2 3 7800 9000
+
+3 4 1000
+
+1 3 3000
+
+```
+
+#### Output
+`test2.rb` now expects two main solutions :
+* the one arriving the earliest, yet leaving the latest.
+* the one with the least number of transfers, still arriving the earliest and leaving the latest.
+For each of those two, an safe alternative route must be offerd (if any) when connection transfer time is inferior to 900(=15 minutes)
+Tests expect each solution to be prefixed by a solution type, namely : `EARLIEST_ARRIVAL`,  `EARLIEST_ARRIVAL_WITH_EASY_TRANSFERS`,  `LEAST_CONNECTIONS ` and `LEAST_CONNECTIONS_WITH_EASY_TRANSFERS`. 
+
+`test3.rb` doesn't change expected output structure with regard to `test2.rb`.
 
 ## Input/output
 
