@@ -49,16 +49,6 @@ class Route_Step
   end
 end
 
-comparator_earliestarrival = lambda { |a,b|
-
-    if a.arrival_timestamp < b.arrival_timestamp
-      return -1
-    elsif (a.arrivalTimestamp > b.arrivalTimestamp)
-      return 1
-    end
-    0
-  }
-
 
 class CSA
   attr_reader :timetable, :possible_routes, :earliest_arrival
