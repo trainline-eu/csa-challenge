@@ -11,7 +11,7 @@ let timetableLength = 0 // Actual number of elements in 'timetable'
 
 function compute(trip) { // Crankshaft-optimizable (Node v5.0.0)
   const earliestArr = new Uint32Array(MAX_STATION).fill(INFINITY)
-  const inConn = []
+  const inConn = new Uint32Array(MAX_STATION).fill(INFINITY)
   let route = []
   let station
 
@@ -23,23 +23,21 @@ function compute(trip) { // Crankshaft-optimizable (Node v5.0.0)
       timetable[i + DEP_TS] >= earliestArr[timetable[i + DEP]] &&
       timetable[i + ARR_TS] <  earliestArr[timetable[i + ARR]]
     ) {
-      inConn[timetable[i + ARR]] = new Uint32Array(
-        timetable.buffer, i * Uint32Array.BYTES_PER_ELEMENT, 4
-      )
+      inConn[timetable[i + ARR]] = i
       earliestArr[timetable[i + ARR]] = timetable[i + ARR_TS]
     } else if (timetable[i + DEP_TS] > earliestArr[trip[ARR]]) {
       break
     }
   }
 
-  if (inConn[trip[ARR]] === undefined) {
+  if (inConn[trip[ARR]] === INFINITY) {
     return null
   }
 
   station = trip[ARR]
   while (station !== trip[DEP]) {
-    route.unshift(inConn[station])
-    station = inConn[station][DEP]
+    route.unshift(timetable.slice(inConn[station], inConn[station] + 4))
+    station = route[0][DEP]
   }
 
   return route
