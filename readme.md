@@ -163,7 +163,7 @@ Run the test with ```ruby test.rb ./target/release/csa_rs```
 
 
 ## NodeJS implementation
-Requiers NodeJS installed
+Requires NodeJS installed
 
 Dependency installation: ```npm install .```
 
