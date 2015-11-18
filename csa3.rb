@@ -60,8 +60,6 @@ class Timetable
       @same_city_connections << SameCityConnection.new(tokens.join(" "))
       line = STDIN.gets.strip
     end
-
-
   end
 end
 
@@ -106,7 +104,7 @@ class CSA
                                                             )
           possible_routes[c.arrival_station] << added_step
           # try to add possibile same city connection
-          timetable.same_city_connections.select{|con| con.departure_station == c.arrival_station} #trip_departure_timestamp, arrival_timestamp, connection_count, index_in_timetable, previous_step, min_transfer_time, city_connection
+          timetable.same_city_connections.select{|con| con.departure_station == c.arrival_station} 
                                           .each{|c|  possible_routes[c.arrival_station] << Route_Step.new(added_step.trip_departure_timestamp, 
                                                                                                           added_step.arrival_timestamp + c.transfer_time,
                                                                                                           added_step.connection_count+1,
@@ -117,11 +115,9 @@ class CSA
                                                                                                           )
                                                     earliest_arrival[c.arrival_station] = added_step.arrival_timestamp + c.transfer_time
                                         }
-
         end
       end
     end
-
   end
 
   def has_result_or_report(arrival_station)
@@ -185,7 +181,7 @@ class CSA
     possible_routes[departure_station] << first_step
 
     # try to add possibile same city connection
-    timetable.same_city_connections.select{|c| c.departure_station == departure_station} #trip_departure_timestamp, arrival_timestamp, connection_count, index_in_timetable, previous_step, min_transfer_time, city_connection
+    timetable.same_city_connections.select{|c| c.departure_station == departure_station} 
                                    .each{|c|  possible_routes[c.arrival_station] << Route_Step.new(departure_time, 
                                                                                                     departure_time + c.transfer_time,
                                                                                                     first_step.connection_count+1,
@@ -196,8 +192,6 @@ class CSA
                                                                                                 )
                                               earliest_arrival[c.arrival_station] = departure_time + c.transfer_time
                                         }
-
-
 
         
     if departure_station <= MAX_STATIONS && arrival_station <= MAX_STATIONS
