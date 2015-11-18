@@ -185,8 +185,7 @@ class CSA
     possible_routes[departure_station] << first_step
 
     # try to add possibile same city connection
-    timetable.same_city_connections.select{|c| 
-                                             c.departure_station == departure_station} #trip_departure_timestamp, arrival_timestamp, connection_count, index_in_timetable, previous_step, min_transfer_time, city_connection
+    timetable.same_city_connections.select{|c| c.departure_station == departure_station} #trip_departure_timestamp, arrival_timestamp, connection_count, index_in_timetable, previous_step, min_transfer_time, city_connection
                                    .each{|c|  possible_routes[c.arrival_station] << Route_Step.new(departure_time, 
                                                                                                     departure_time + c.transfer_time,
                                                                                                     first_step.connection_count+1,
