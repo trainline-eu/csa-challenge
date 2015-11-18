@@ -57,9 +57,11 @@ class Timetable
       @same_city_connections << SameCityConnection.new(line)
       tokens = line.split(" ")
       tokens = [tokens[1], tokens[0], tokens[2]]
-      @same_city_connections << SameCityConnection.new(tokens.join())
+      @same_city_connections << SameCityConnection.new(tokens.join(" "))
       line = STDIN.gets.strip
     end
+
+
   end
 end
 
@@ -105,15 +107,15 @@ class CSA
           possible_routes[c.arrival_station] << added_step
           # try to add possibile same city connection
           timetable.same_city_connections.select{|con| con.departure_station == c.arrival_station} #trip_departure_timestamp, arrival_timestamp, connection_count, index_in_timetable, previous_step, min_transfer_time, city_connection
-                                          .each{|c|  possible_routes[departure_station] << Route_Step.new(added_step.trip_departure_timestamp, 
-                                                                                                          added_step.arrival_timestamp + con.transfer_time,
+                                          .each{|c|  possible_routes[c.arrival_station] << Route_Step.new(added_step.trip_departure_timestamp, 
+                                                                                                          added_step.arrival_timestamp + c.transfer_time,
                                                                                                           added_step.connection_count+1,
                                                                                                           nil,
                                                                                                           added_step,
                                                                                                           added_step.min_transfer_time,
-                                                                                                          Connection.new(previous_step.arrival_station, c.arrival_station, previous_step.arrival_timestamp, previous_step.arrival_timestamp + c.transfer_time)
+                                                                                                          Connection.new([ c.departure_station, c.arrival_station, added_step.arrival_timestamp, added_step.arrival_timestamp + c.transfer_time].join(" "))
                                                                                                           )
-                                                    earliest_arrival[c.arrival_station] = previous_step.arrival_timestamp + c.transfer_time
+                                                    earliest_arrival[c.arrival_station] = added_step.arrival_timestamp + c.transfer_time
                                         }
 
         end
@@ -124,6 +126,7 @@ class CSA
 
   def has_result_or_report(arrival_station)
     if possible_routes[arrival_station].length == 0
+      STDERR.puts "NO_SOLUTION"
       puts "NO_SOLUTION"
       return false
     else
@@ -182,16 +185,17 @@ class CSA
     possible_routes[departure_station] << first_step
 
     # try to add possibile same city connection
-    timetable.same_city_connections.select{|c| c.departure_station == departure_station} #trip_departure_timestamp, arrival_timestamp, connection_count, index_in_timetable, previous_step, min_transfer_time, city_connection
-                                   .each{|c|  possible_routes[departure_station] << Route_Step.new(departure_time, 
+    timetable.same_city_connections.select{|c| 
+                                             c.departure_station == departure_station} #trip_departure_timestamp, arrival_timestamp, connection_count, index_in_timetable, previous_step, min_transfer_time, city_connection
+                                   .each{|c|  possible_routes[c.arrival_station] << Route_Step.new(departure_time, 
                                                                                                     departure_time + c.transfer_time,
                                                                                                     first_step.connection_count+1,
                                                                                                     nil,
                                                                                                     first_step,
                                                                                                     INF,
-                                                                                                    Connection.new(departure_station, c.arrival_station, departure_timestamp, departure_timestamp + c.transfer_time)
+                                                                                                    Connection.new([departure_station, c.arrival_station, departure_time, departure_time + c.transfer_time].join(" "))
                                                                                                 )
-                                              earliest_arrival[c.arrival_station] = departure_timestamp + c.transfer_time
+                                              earliest_arrival[c.arrival_station] = departure_time + c.transfer_time
                                         }
 
 
