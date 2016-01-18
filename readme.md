@@ -62,7 +62,7 @@ We just need to go from `d` and look up all the in_connections until we reach `o
 
 ### Immediate optimizations
 
-There is no need to look all the connections. We start with the first having `departure_timestamp > t0` and we stop
+There is no need to look all the connections. We start with the first having `c.departure_timestamp >= t0` and we stop
 as soon as `c.departure_timestamp > arrival_timestamp`.
 
 ## Limitations
