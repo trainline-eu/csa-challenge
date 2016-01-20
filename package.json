@@ -1,0 +1,19 @@
+{
+  "name": "CSACaptainTrainChallenge",
+  "version": "0.0.0",
+  "description": "JS implementation of the CSA challenge by Captain Train",
+  "main": "csa_alt.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Gruck/csa-challenge.git"
+  },
+  "author": "Gaël \"Gruck\" Motte",
+  "license": "MIT",
+  "dependencies": {  
+    "split" : "*",
+    "google-closure-compiler" :"*"
+  }
+}
