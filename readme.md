@@ -142,7 +142,7 @@ Try to write:
 * The first implementation passing the tests
 * Smallest source code (measured in bytes). Any library installable without an external repository on Debian, Ubuntu, Archlinux is accepted
 * Smallest executable (same rule considering dependencies)
-* The most unreadable
+* The most readable
 * The least alphanumerical characters
 * The most creative implementation of the algorithm
 
