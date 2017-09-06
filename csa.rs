@@ -25,24 +25,22 @@ impl Connection {
 }
 
 fn csa_main_loop(timetable: &[Connection], arrival_station: usize, earliest_arrival: &mut [u32], in_connection: &mut [usize]) {
-    let mut earliest = std::u32::MAX;
-
-    for (i, connection) in timetable.iter().enumerate() {
+    timetable.iter().enumerate().fold(std::u32::MAX, |earliest, (i, connection)| {
         if connection.departure_timestamp >= earliest_arrival[connection.departure_station] &&
-                connection.arrival_timestamp < earliest_arrival[connection.arrival_station] {
+           connection.arrival_timestamp < earliest_arrival[connection.arrival_station] {
             earliest_arrival[connection.arrival_station] = connection.arrival_timestamp;
             in_connection[connection.arrival_station] = i;
-
-            if connection.arrival_station == arrival_station && connection.arrival_timestamp < earliest {
-                earliest = connection.arrival_timestamp;
-            }
-        } else if connection.arrival_timestamp > earliest {
-            break;
         }
-    }
+
+        if connection.arrival_station == arrival_station && connection.arrival_timestamp < earliest {
+            connection.arrival_timestamp
+        } else {
+            earliest
+        }
+    });
 }
 
-fn csa_print_result(timetable: &Vec<Connection>, in_connection: &[usize], arrival_station: usize) {
+fn csa_print_result(timetable: &[Connection], in_connection: &[usize], arrival_station: usize) {
     if in_connection[arrival_station] == std::u32::MAX as usize {
         println!("NO_SOLUTION");
     } else {
@@ -62,7 +60,7 @@ fn csa_print_result(timetable: &Vec<Connection>, in_connection: &[usize], arriva
     println!("");
 }
 
-fn csa_compute(timetable: &Vec<Connection>, departure_station: usize, arrival_station: usize, departure_time: u32)
+fn csa_compute(timetable: &[Connection], departure_station: usize, arrival_station: usize, departure_time: u32)
 {
     let mut in_connection = vec!(std::u32::MAX as usize; MAX_STATIONS);
     let mut earliest_arrival = vec!(std::u32::MAX; MAX_STATIONS);
@@ -83,7 +81,7 @@ fn main() {
     let timetable = buffered_in.map(|r| { r.ok().expect("failed to read connection line") })
                                .take_while(|l| { !l.is_empty() })
                                .map(|l| { Connection::parse(l.trim_right()) })
-                               .collect();
+                               .collect::<Vec<Connection>>();
 
     // Responding to requests from stdin
 
@@ -100,6 +98,6 @@ fn main() {
                    let arrival_station = params[1] as usize;
                    let departure_time = params[2];
 
-                   csa_compute(&timetable, departure_station, arrival_station, departure_time);
+                   csa_compute(&timetable[..], departure_station, arrival_station, departure_time);
                }).collect::<Vec<_>>();
 }
