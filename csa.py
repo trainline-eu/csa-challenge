@@ -46,7 +46,7 @@ class CSA:
 
                 if c.arrival_station == arrival_station:
                     earliest = min(earliest, c.arrival_timestamp)
-            elif c.arrival_timestamp > earliest:
+            elif c.departure_timestamp >= earliest:
                 return
 
     def print_result(self, arrival_station):

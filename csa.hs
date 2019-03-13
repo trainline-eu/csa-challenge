@@ -75,7 +75,7 @@ augmentTimetable earliestArrival timetable@(Timetable arrivalTimes inConnections
           newTimetable     = Timetable newArrivalTimes newInConnections
       in augmentTimetable (min arrivalTime earliestArrival) newTimetable connections
     else
-      if arrivalTime > earliestArrival
+      if departureTime >= earliestArrival
       then
         timetable
       else

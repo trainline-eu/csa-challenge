@@ -48,7 +48,7 @@ class CSA
         if c.arrival_station == arrival_station
           earliest = [earliest, c.arrival_timestamp].min
         end
-      elsif c.arrival_timestamp > earliest
+      elsif c.departure_timestamp >= earliest
         return
       end
     end
