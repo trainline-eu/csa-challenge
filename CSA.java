@@ -59,7 +59,7 @@ public class CSA {
                 if(connection.arrival_station == arrival_station) {
                     earliest = Math.min(earliest, connection.arrival_timestamp);
                 }
-            } else if(connection.arrival_timestamp > earliest) {
+            } else if(connection.departure_timestamp >= earliest) {
                 return;
             }
         }

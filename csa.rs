@@ -36,7 +36,7 @@ fn csa_main_loop(timetable: &[Connection], arrival_station: usize, earliest_arri
             if connection.arrival_station == arrival_station && connection.arrival_timestamp < earliest {
                 earliest = connection.arrival_timestamp;
             }
-        } else if connection.arrival_timestamp > earliest {
+        } else if connection.departure_timestamp >= earliest {
             break;
         }
     }

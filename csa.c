@@ -91,7 +91,7 @@ void compute_route(array_of(connection) *timetable, request *rq)
             if(c->to == rq->to) {
                 earliest = MIN(earliest, c->end);
             }
-        } else if(c->end > earliest) {
+        } else if(c->start >= earliest) {
             break;
         }
     }

@@ -40,7 +40,7 @@ function find(connections, earliest_arr, in_conn,  arr)
       if cas == arr then
         earliest = math.min(earliest, cat)
       end
-    elseif cat > earliest then
+    elseif cdt >= earliest then
       return
     end
   end

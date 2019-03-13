@@ -42,7 +42,7 @@ begin
       if (timetable[i].arrivalStation = arrivalStation) then
         earliest := min(timetable[i].arrivalTime, earliest);
     end
-    else if (timetable[i].arrivalTime > earliest) then
+    else if (timetable[i].departureTime >= earliest) then
       Exit;
   end;
 end;
